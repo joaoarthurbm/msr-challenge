@@ -3,10 +3,15 @@ package facade;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
+import model.Comment;
+import model.Commit;
 import model.Issue;
 import model.Project;
+import model.PullRequest;
 
 
 public class ProjectsAnalyzer {
@@ -16,6 +21,10 @@ public class ProjectsAnalyzer {
 	
 	public ProjectsAnalyzer() {
 		this.projects = new HashMap<String,Project>();
+	}
+	
+	public Project getProject(String id) {
+		return this.projects.get(id);
 	}
 	
 	
@@ -33,9 +42,20 @@ public class ProjectsAnalyzer {
 		project.addCommentToIssue(commentID,issueID,developer,body);
 	}
 	
+	public void addPullRequestComment(String commentID, String projectID,
+			String pullID, String developer, String body, String commitID) {
+		Project project = this.projects.get(projectID);
+		project.addPullRequestComment(commentID,pullID,developer,body, commitID);
+	}
+	
 	public void addCommit(String commitID, String projectID) {
 		Project project = this.projects.get(projectID);
 		project.addCommit(commitID);
+	}
+	
+	public void addPullRequest(String pullID, String projectID) {
+		Project project = this.projects.get(projectID);
+		project.addPullRequest(pullID);
 	}
 
 
@@ -54,7 +74,7 @@ public class ProjectsAnalyzer {
 			for (Issue i : issues) {
 				numberOfComments+=i.getCommentsNumber();
 			}
-			commentsPerProject.put(p.getId(), numberOfComments);
+			commentsPerProject.put(p.getID(), numberOfComments);
 			numberOfComments = 0;
 		}
 		
@@ -72,8 +92,44 @@ public class ProjectsAnalyzer {
 		return issues;
 	}
 	
+	public Collection<Commit> getCommits() {
+		Collection<Commit> commits = new HashSet<Commit>();
+		
+		for (Project p : projects.values()) {
+			commits.addAll(p.getCommits());
+		}
+		return commits;
+	}
+	
+	public Collection<PullRequest> getPullRequests() {
+		Collection<PullRequest> pullRequests = new HashSet<PullRequest>();
+		
+		for (Project p : projects.values()) {
+			pullRequests.addAll(p.getPullRequests());
+		}
+		return pullRequests;
+	}
+	
+	
 	public Map<String, Project> getProjects() {
 		return projects;
 	}
+
+
+	public void addCollaborator(String projectID, String developer) {
+		Project project = this.projects.get(projectID);
+		project.addCollaborator(developer);
+	}
+	
+	public Collection<Comment> getAllComments() {
+		Collection<Comment> comments = new LinkedList<Comment>();
+		
+		for (Project p : projects.values()) {
+			comments.addAll(p.getAllComments());
+		}
+		return comments;
+	}
+	
+	
 	
 }

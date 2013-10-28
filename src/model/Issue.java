@@ -2,9 +2,7 @@ package model;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 
@@ -13,7 +11,7 @@ import java.util.Set;
  * @author jarthur
  *
  */
-public class Issue {
+public class Issue implements ProjectActivity {
 	
 	private String id;
 	private Map<String,IssueComment> issueComments;
@@ -34,7 +32,7 @@ public class Issue {
 		
 	}
 	
-	public Collection<IssueComment> getIssueComments() {
+	public Collection<IssueComment> getComments() {
 		return this.issueComments.values();
 	}
 	
@@ -43,7 +41,7 @@ public class Issue {
 		return this.issueComments.size();
 	}
 	
-	public String getId() {
+	public String getID() {
 		return id;
 	}
 
@@ -71,8 +69,7 @@ public class Issue {
 			return false;
 		return true;
 	}
-	
-	
+
 }
 
 

@@ -3,6 +3,7 @@ package model;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,6 +18,8 @@ public class Project {
 	private Set<String> developers;
 	private Map<String, Issue> issues;
 	private Map<String, Commit> commits;
+	private Map<String, PullRequest> pull;
+	private Set<String> collaborators;
 
 
 	public Project(String id) {
@@ -24,6 +27,8 @@ public class Project {
 		this.developers = new HashSet<String>();
 		this.issues = new HashMap<String,Issue>();
 		this.commits = new HashMap<String,Commit>();
+		this.pull = new HashMap<String,PullRequest>();
+		this.collaborators = new HashSet<String>();
 
 	}
 
@@ -38,17 +43,26 @@ public class Project {
 	public void addCommit(String commitID) {
 		if (this.commits.get(commitID) == null) this.commits.put(commitID, new Commit(commitID));
 	}
+	
+	public void addPullRequest(String pullID) {
+		if (this.pull.get(pullID) == null) this.pull.put(pullID, new PullRequest(pullID));
+	}
 
 	public Issue getIssue(String issueID) {
 		return this.issues.get(issueID);
 	}
+	
+	public PullRequest getPullRequest(String id) {
+		return this.pull.get(id);
+	}
+	
 	
 	private Commit getCommit(String commitID) {
 		return this.commits.get(commitID);
 	}
 
 
-	public String getId() {
+	public String getID() {
 		return id;
 	}
 
@@ -59,7 +73,10 @@ public class Project {
 	public Collection<Commit> getCommits() {
 		return this.commits.values();
 	}
-
+	
+	public Collection<PullRequest> getPullRequests() {
+		return this.pull.values();
+	}
 
 	public int getNumberOfIssues() {
 		return this.issues.size();
@@ -97,6 +114,20 @@ public class Project {
 		}
 
 	}
+	
+	public void addPullRequestComment(String commentID, String pullID,
+			String developer, String body, String commitID) {
+		PullRequest pull = this.getPullRequest(pullID);
+
+		if (pull != null) {
+			pull.addPullRequestComment(commentID, developer, body,commitID);
+		} else {
+			pull = new PullRequest(id);
+			pull.addPullRequestComment(commentID, developer, body, commitID);
+			this.pull.put(pullID, pull);
+		}
+	}
+
 
 	@Override
 	public int hashCode() {
@@ -122,5 +153,35 @@ public class Project {
 			return false;
 		return true;
 	}
+
+	public void addCollaborator(String developer) {
+		this.collaborators.add(developer);
+	}
 	
+	public Set<String> getCollaborators() {
+		return collaborators;
+	}
+
+	public Collection<Comment> getAllComments() {
+	
+		Collection<Comment> allComments = new LinkedList<Comment>();
+		
+		for (Commit commit : this.commits.values()) {
+			Collection<CommitComment> commitComments = commit.getComments();
+			allComments.addAll(commitComments);
+		}
+		
+		for (Issue i : this.issues.values()) {
+			Collection<IssueComment> issueComments = i.getComments();
+			allComments.addAll(issueComments);
+		}
+
+		for (PullRequest p : this.pull.values()) {
+			Collection<PullRequestComment> pullComments = p.getComments();
+			allComments.addAll(pullComments);
+		}
+		
+		return allComments;
+		
+	}
 }

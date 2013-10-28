@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Commit {
+public class Commit implements ProjectActivity {
 
 	private String id;
 	private Map<String, CommitComment> commitComments;
@@ -14,7 +14,7 @@ public class Commit {
 		this.commitComments = new HashMap<String,CommitComment>();
 	}
 	
-	public String getId() {
+	public String getID() {
 		return id;
 	}
 
@@ -57,5 +57,4 @@ public class Commit {
 			return false;
 		return true;
 	}
-
 }

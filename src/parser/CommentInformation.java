@@ -10,13 +10,19 @@ public class CommentInformation implements LineExtractedInformation {
 	private String id;
 	private String developer;
 	private String body;
+	private String commitID;
 	
-	public CommentInformation(String commentID, String projectID, String issueID, String developer, String body) {
+	public CommentInformation(String commentID, String projectID, String issueID, String developer, String body, String commitID) {
 		this.commentID = commentID;
 		this.projectID = projectID;
 		this.id = issueID;
 		this.developer = developer;
 		this.body = body;
+		this.commitID = commitID;
+	}
+	
+	public String getCommitID() {
+		return commitID;
 	}
 	
 	public String getBody() {
