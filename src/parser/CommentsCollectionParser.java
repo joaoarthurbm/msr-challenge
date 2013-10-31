@@ -51,15 +51,13 @@ public class CommentsCollectionParser implements MongoDBParser {
 			split = ((String) next.get("html_url")).split("\\/");
 			String token = split[6];
 			String issueNumber = token.split("#")[0];
-			String abstractionID = projectID+"-"+issueNumber;
+			String abstractionID = projectID+"-"+ collectionName + "-" + issueNumber;
 			
 			// commentID
 			String number = Integer.toString((Integer) next.get("id"));
 			String commentID = abstractionID+"-"+number;
 			
 			String commitID = (String) next.get("commit_id");
-			
-//			System.out.println(projectID + " " + abstractionID + " " + developer + " " + commentID);
 			
 			linesExtracted.add(new CommentInformation(commentID,projectID,abstractionID,developer,body, commitID));
 		}
