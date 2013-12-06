@@ -1,0 +1,15 @@
+<patriknw> this should go inside `RemoteWatcher.props`
+same thing at other places that use props factory method pattern
+<patriknw> you changed this to throw, please explain
+<patriknw> line break
+<rkuhn> returning an EmptyLocalActorRef from actorOf is not consistent with the other error cases, where we bail out with an exception
+<patriknw> `akka.actor.serialize-creators` is defined in several reference.conf files
+Is the merge order of reference.conf files defined?
+hmm
+<rkuhn> it is in classpath order, but you’re right: I’ll add a test which just verifies that this setting was applied (in each of the projects)
+<patriknw> ok, I looked at what kind of exceptions could be thrown here, and it is mostly from `localAddressForRemote` and that is in the IllegalArgumentException category, so all fine. Good!
+<patriknw> yes that is a good solution
+<rkuhn> that is not necessarily a good idea in all cases
+<rkuhn> I’ll leave it as is for now, because I don’t see a clear down-side to my approach and the change is somewhat cosmetic, so it can also be done after RC1
+<patriknw> well, for these internal actors, that are not intended to be remote deployed it must be better to define all props in the props factory, why not?
+of course I didn't mean "all" as in those in contrib

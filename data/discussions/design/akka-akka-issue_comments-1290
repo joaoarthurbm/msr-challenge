@@ -1,0 +1,25 @@
+<akka-ci> Started jenkins job akka-pr-validator at https://jenkins.akka.io/job/akka-pr-validator/777/
+<akka-ci> jenkins job akka-pr-validator: Failed - https://jenkins.akka.io/job/akka-pr-validator/777/ <br> ![sad kitty](http://cdn.memegenerator.net/instances/100x/31464013.jpg)
+<bantonsson> It breaks `SerializationCompatibilitySpec`.
+
+Otherwise LGTM.
+
+<patriknw> I think the doc tests should be updated to not use `isTerminated`.
+Any internal usages that should be updated?
+Any tests that should be updated?
+<patriknw> A note in the migration guide would be nice.
+<viktorklang> I think the deprecation and the refactoring should be kept separate as one is changing user API and one is internal implementaiton details.
+<viktorklang> Also, SerializationCompatibilitySpec seems broken and needs fixing.
+<patriknw> I still think the doc tests should be updated to not use isTerminated, since that is user API.
+Create another ticket if you don't want to change the internals.
+<viktorklang> True, I'll clean up the doc tests
+<akka-ci> Started jenkins job akka-pr-validator at https://jenkins.akka.io/job/akka-pr-validator/789/
+<akka-ci> jenkins job akka-pr-validator: Failed - https://jenkins.akka.io/job/akka-pr-validator/789/ <br> ![sad kitty](http://cdn.memegenerator.net/instances/100x/31464013.jpg)
+<viktorklang> PLS REBUILD ALL
+<viktorklang> (race condition between push and start of kitteh)
+<akka-ci> Started jenkins job akka-pr-validator at https://jenkins.akka.io/job/akka-pr-validator/791/
+<akka-ci> jenkins job akka-pr-validator: Failed - https://jenkins.akka.io/job/akka-pr-validator/791/ <br> ![sad kitty](http://cdn.memegenerator.net/instances/100x/31464013.jpg)
+<viktorklang> Alright, should be good to go now!
+<viktorklang> PLS REBUILD ALL
+<akka-ci> Started jenkins job akka-pr-validator at https://jenkins.akka.io/job/akka-pr-validator/794/
+<akka-ci> jenkins job akka-pr-validator: Success - https://jenkins.akka.io/job/akka-pr-validator/794/

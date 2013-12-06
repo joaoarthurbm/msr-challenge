@@ -1,0 +1,123 @@
+This is not supposed to be used externally.,design
+it should use an ExecutorServiceConfigurator so it can be managed externally.,design
+this class is an internal structure.,design
+True will make public again. On the other hand we have other places which require external implementors.,design
+No this is cheating by using low-level API that shouldn't even be exposed.,design
+Since the SelectionHandler ref is not exposed.,design
+Method is exposed to subclasses to be able to implement custom.,design
+an implementation detail that shouldn't be exposed to users.,design
+would it be possible to make actor accessible in the public API?,design
+we can add new methods to Context without accidentally breaking peoples Actors evolve the api without breaking user code.,design
+Why does it return a leaking implementation detail?,design
+Should probably use composition instead of inheritance.,design
+Should this class be public?,design
+UnsupportedActorRef already implements ScalaActorRef.,design
+Is this a public method?,design
+Why does this extend ScalaActorRef?,design
+I think that RoutedActorRef is going to be a part of the API.,design
+to do a redesign on this part.,design
+current approach is not very extensible friendly.,design
+Should this class be public?,design
+it should be part of the Api.,design
+This is how it is implemented in the ClusteredActorRef the design of the RoutedActorRef was based on.,design
+Can't that be solved with overloading?,design
+the current design isn't very exensible,design
+I would have modelled it.,design
+we should expose implementation details or not perhaps we should discuss it.,design
+should be updated to not use.,design
+Any internal usages that should be updated?,design
+refactoring should be kept separate as one is changing user API and one is internal implementaiton details.,design
+change the internals.,design
+I agree that this shouldn't be exposed.,design
+is SchedulerException ever exposed to users? ,design
+Make it private?,design
+The events need to be private and should not be exposed.,design
+They are for internal use only.,design
+Users can use awaitActivation methods from Activation.,design
+I'll make it private,design
+that other internal events are published in akka as public classes.,design
+it is dangerous as they are internals and we are not prepared to expose them.,design
+they are exposing the internals of implementation and break encapsulation.,design
+I've made them internal again.,design
+minimize exposure.,design
+This whole structure is specific to this actor and should not be used anywhere else.,design
+It is not the job of this structure to enforce that.,design
+internal should not be publicly visible.,design
+This should not be here this is specific to the TestTransport.,design
+Some implicit conversion that is only for internal use?,design
+I think it's good enough if we make an internal utility method,design
+this is the way to create RoutedActorRefs.,design
+low-level API that shouldn't even be exposed.,design
+Should not be used.,design
+api type. Perhaps this is just internal.,design
+this should go inside RemoteWatcher.props.,design
+places that use props factory method pattern.,design
+it must be better to define all props in the props factory.,design
+it should be `getContext().actorOf`.,design
+these should be internal API.,design
+It should then be marked as internal API.,design
+actor extending UntypedProcessor.,design
+`Message` creation inside and outside a processor.,design
+The reason for `private[persistence]` is that it is used by the `RecoverOnRestart` trait.,design
+will become either INTERNAL API or `private`.,design
+What about moving the above `preStart` implementation to `Processor`?,design
+processors can only override `preRestartProcessor`,design
+we could move the preRestart and postRestart implementations to Processor.,design
+concrete processors should override preRestartProcessor and postRestartProcessor.,design
+using an actor context in the wrong place.,design
+It will be called only if users create new outbound messages via Message.,design
+My assumptions about LevelDB API might be incorrect.,design
+move from ActorRef to pattern.,design
+OldActor so that existing code works inside actors.,design
+Add needed implicit conversion in this package.scala file so that existing code works outside actors.,design
+Document as internal and make final.,design
+I like to move it move it.,design
+should be private.,design
+I'd definitely recommend making DeadLetterActorRef a subtype of EmptyLocalActorRef.,design
+why is this class public?,design
+I'm guessing this should be private and documented as internal.,design
+would it be possible to move to context?,design
+should not be user extendable yet.,design
+prevent subclassing by user code.,design
+its only use-case within the library is.,design
+why not private?,design
+I think it can be private.,design
+Because otherwise we wouldn’t know how to create a Future.,design
+we could also change that to require an implicit ExecutionContext.,design
+ActorRefProvider does not expose a reference to its ActorSystem.,design
+Subclassing applies to ActorSystem or ActorCell.,design
+A factory to create MessageQueues for an optionally provided ActorContext.,design
+why is it exposed?,design
+The rest of the ActorPath handling is also not private.,design
+So you don’t want people to implement MessageDispatcher?,design
+I think we should only export not the other ones.,design
+it probably makes more sense to mark as private packages.,design
+I would personally keep that export.,design
+to move the things from org.jboss.netty.akka.util to akka.util.,design
+config will become an explicit dependency as well.,design
+only used internally or should they be exposed in the API?,design
+If just internal you could consider to put them into akka.internal.util.,design
+We'll make them package protected.,design
+suggest to just wrap in a RemoteTransportException and rethrow and let the layer above decide if it should be logged or not.,design
+Just wrap in a RemoteTransportException and let the caller decide if it should be logged or not.,design
+This should be private and be documented as internal api.,design
+Why not throw an exception here instead of having to check for None in the code which uses it?,design
+Shouldn't getChild be only in UntypedActorContext? It's purpose is for java api.,design
+ActorCell must implement both and ActorContext does not expose the Java variant,design
+This should be pulled out of the trait since it is a constant put in some object.,design
+now you're exposing "this" to another Actor.,design
+private this.,design
+These should be in a companion object like usual.,design
+If the extension you have a reference to ExtendedActorSystem.,design
+If you want to log directly to j.u.l. then you should use that api directly.,design
+It allows the Akka Logging API to be used outside of Actor systems.,design
+is that it doesn't require any dependencies.,design
+Instead of directly calling into the ConcurrentSocketActor through methods like connect bind etc you should send messages to the actor.,design
+But you're calling out to the methods of the Actor which is a violation of the ActorModel.,design
+methods inside the select-function? (or are they used internally in the actor as well?,design
+No they are only invoked from #select and should not be invoked from any other site either inside or outside the actor.,design
+so move them into the select function.,design
+it's better to create the actor inside the newSocket method and pass the supervisor into it.,design
+you might as well move the method definition into receiveFrames.,design
+it should be: private.,design
+will this be exposed in some way in Spray?,design

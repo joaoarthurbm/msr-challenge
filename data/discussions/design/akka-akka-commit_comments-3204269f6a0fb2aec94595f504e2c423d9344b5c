@@ -1,0 +1,88 @@
+<jboner> Why do we want to make the user type more by removing all the methods from Actor? 
+So now he has to pollute his code with 'context.' everywhere.
+I don't like that, need some convincing here. 
+<viktorklang> The user shouldn't pollute everything with context everywhere. "self" is on Actor, and if you don't use any of the context-things there's no additional typing, and if you want to have the full scope, you simply do: import context._
+In this way we do not pollute the namespace on Actor by default, we can add new methods to Context without accidentally breaking peoples Actors etc.
+<jboner> I am just worried that there is too much things going on. The user
+needs to learn when to use either of:
+1. Actor API
+2. self
+3. context
+It is not simple.
+
+On Tue, Dec 6, 2011 at 11:46 AM, viktorklang
+<reply@reply.github.com>
+wrote:
+> The user shouldn't pollute everything with context everywhere. "self" is on Actor, and if you don't use any of the context-things there's no additional typing, and if you want to have the full scope, you simply do: import context._
+> In this way we do not pollute the namespace on Actor by default, we can add new methods to Context without accidentally breaking peoples Actors etc.
+>
+> ---
+> Reply to this email directly or view it on GitHub:
+> https://github.com/jboner/akka/commit/3204269f6a0fb2aec94595f504e2c423d9344b5c#commitcomment-771983
+
+
+
+-- 
+Jonas Bonér
+CTO
+Typesafe - Enterprise-Grade Scala from the Experts
+Phone: +46 733 777 123
+Twitter: @jboner
+<viktorklang> I can understand your worries, the current suggestion was the least of all evils:
+
+Actor == The behavior
+self    == The identity
+context == The context
+<rkuhn> I think it’s simple enough, viewed like this:
+
+- for creating actors you need to know where to get them from (that is what you mean by Actor API, right?)
+- for the typical things we have `self` and `sender` directly available, as that covers probably 90% of the use cases
+- if you want more special actor sauce—which is become/unbecome and watch/unwatch, system and children—then it’s always close by, just `import context._` (or better: choose specifically)
+<patriknw> I agree to this as the most important reason. It gives us freedom to evolve
+the api without breaking user code.
+
+On Tue, Dec 6, 2011 at 11:46 AM, viktorklang <
+reply@reply.github.com
+> wrote:
+
+> The user shouldn't pollute everything with context everywhere. "self" is
+> on Actor, and if you don't use any of the context-things there's no
+> additional typing, and if you want to have the full scope, you simply do:
+> import context._
+> In this way we do not pollute the namespace on Actor by default, we can
+> add new methods to Context without accidentally breaking peoples Actors etc.
+>
+> ---
+> Reply to this email directly or view it on GitHub:
+>
+> https://github.com/jboner/akka/commit/3204269f6a0fb2aec94595f504e2c423d9344b5c#commitcomment-771983
+>
+
+
+
+-- 
+
+Patrik Nordwall
+Typesafe <http://typesafe.com/> - Enterprise-Grade Scala from the Experts
+Twitter: @patriknw
+<jboner> Might be the best overall choice. But it needs to be *very well* documented. In a way that makes sense and is easily remembered. 
+<viktorklang> Well-documented is Roland's middle name
+<jboner> https://www.assembla.com/spaces/akka/tickets/1438-doc--document-the-differences-between--actor-api--self-and-context
+
+On Tue, Dec 6, 2011 at 1:36 PM, viktorklang
+<reply@reply.github.com>
+wrote:
+> Well-documented is Roland's middle name
+>
+> ---
+> Reply to this email directly or view it on GitHub:
+> https://github.com/jboner/akka/commit/3204269f6a0fb2aec94595f504e2c423d9344b5c#commitcomment-772192
+
+
+
+-- 
+Jonas Bonér
+CTO
+Typesafe - Enterprise-Grade Scala from the Experts
+Phone: +46 733 777 123
+Twitter: @jboner

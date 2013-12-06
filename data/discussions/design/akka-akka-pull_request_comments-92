@@ -1,0 +1,163 @@
+<viktorklang> Is Context threadsafe?
+<viktorklang> Scala's Vector is usually quite a bit more performant and supports append, so use List only if you need the prepend semantics.
+<viktorklang> Switch to "!listener.isShutdown" (isRunning is removed in master)
+What should happen if the listener is shut down?
+<viktorklang> Instead of calling back into the Actor, I think you should send it messages (otherwise you have a race)
+Also, there is no check for the current status of the actor (what happens if it's dead?)
+<viktorklang> Nice! Would the code be clearer if the run-method would be named differently?
+<viktorklang> Nice!
+<viktorklang> this can be shortened to: listener foreach { _ ! Connected }
+<viktorklang> Nice!
+<kro> Yes, from the ZeroMQ documentation:
+
+"A ØMQ context is thread safe and may be shared among as many application threads as necessary, without any additional locking required on the part of the caller."
+
+http://api.zeromq.org/2-1:zmq
+<kro> Two strategies: either the run-select loop is terminated or nothing. I don't have a strong opinion about that, may be nothing?
+<viktorklang> "receiveFrames" can be replaced with the following:
+private def receiveFrames: Seq[Frame] = {
+  var frames = Vector.empty[Frame]
+  while(socket.hasReceiveMore) receiveBytes foreach { bytes => frames :+= Frame(bytes) }
+  frames
+}
+<kro> Can you elaborate this note a bit...?
+<viktorklang> If performance is important here I think I'd recommend not using options and use a cached empty byte array as an EOF marker:
+
+val noBytes = Array[Byte]()
+
+@inline private final def receiveBytes(): Array[Byte] = socket.recv(0) match {
+  case null => noBytes
+  case bytes: Array[Byte] if bytes.length > 0 => bytes
+  case _ => noBytes
+}
+
+Then you can just match on it:
+
+receiveBytes() match {
+  case `noBytes` => done
+  case bytes => Frame(bytes)
+}
+
+<viktorklang> Nice touch!
+
+Are you sure you want prepend semantics on the requests?
+<viktorklang> Nice with the SocketType!
+<viktorklang> You don't need the "val" keyword when it's a case-class. (protip)
+<viktorklang> Nice ADT
+<viktorklang> Nice ADT
+<viktorklang> Nice!
+Might be nice to be able to specify a supervisor to the actor?
+<viktorklang> Might want to make that configurable, Akka has a really nice Duration type in akka.util.duration
+<kro> I was thinking that ZeroMQ would supply one, down the road, i.e. all ConcurrentSocketActors would have a supervisor when created using #newSocket. Bad style, you think?
+<kro> That won't work as hasReceiveMore is false, if the message does not comprise of multiple message frames.
+<viktorklang> Instead of directly calling into the ConcurrentSocketActor through methods like connect, bind etc, you should send messages to the actor.
+<viktorklang> Great!
+<viktorklang> If the listener is shut down it will never come back up again, so should it still keep running?
+<viktorklang> So you need to call recv(0) _before_ hasReceiveMore?
+
+If so:
+
+    private def receiveFrames: Seq[Frame] =
+      receiveBytes() match {
+        case `noBytes` => Vector.empty
+        case someBytes =>
+          var frames = Vector(Frame(someBytes))
+          while(socket.hasReceiveMore) receiveBytes() match {
+            case `noBytes` => 
+            case someBytes => frames :+= Frame(someBytes)
+          }
+        frames
+}
+<viktorklang> I think it might be better to have def newSocket return Props: (for the 2.0 version)
+
+def newSocketProps(context: Context, socketType: SocketType, listener: Option[ActorRef] = None, deserializer: Deserializer = new ZMQMessageDeserializer) = Props(new ConcurrentSocketActor(context, socketType, listener, deserializer)
+
+Then instead of taking the dispatcher into the constructor, you simple get it from the context (inside ConnectionActor: context.dispatcher)
+
+Then when you want to create a connection you do:
+
+actorOf(ZeroMQ.newSocketProps(...).withDispatcher(myowncustomdispatcher).withSupervisor(myownSupervisor))
+<kro> Yeah, probably the right thing to do at that point is to stop, as the messages would be otherwise lost.
+<kro> I don't see where is the race as requests are processed synchronously in #select, no?
+<kro> Cool, #receiveFrames looks much better now!
+<kro> How about for the 1.3 release? Support for a user-defined supervisor?
+<viktorklang> An interesting solution would also be to export it as an Iterator and fold it:
+
+    val i = new Iterator[Frame] {
+      var bytes = receiveBytes()
+      def hasNext = bytes ne noBytes
+      def next = bytes match {
+                          case `noBytes`   => throw new IllegalStateException("EOF")
+                          case someBytes =>
+                             bytes = if (socket.hasReceiveMore) receiveBytes() else noBytes
+                             Frame(someBytes)
+                       }
+      }
+}
+
+Then to collect all the avalable frames:
+
+    (Vector[Frame]() /: i)(_ :+ _)
+<viktorklang> But you're calling out to the methods of the Actor, which is a violation of the ActorModel, since the Actor could be shut down or it's fields might be invisible from a JMM perspective, why not put the connect, bind etc as methods inside the select-function? (or are they used internally in the actor as well?=
+<kro> No, they are only invoked from #select and should not be invoked from any other site, either inside or outside the actor.
+<viktorklang> Alright, good, so move them into the select function so that they're only reachable from within it.
+
+Great work Karim!
+<viktorklang> For the 1.3 release I think it's better to create the actor inside the newSocket method and pass the supervisor into it and have it set prior to starting it:
+
+def newSocket(..., supervisor: ActorRef): ActorRef = {
+  val a = actorOf(...)
+  supervisor.link(a)
+  a.start
+}
+<kro> Thanks for pointing that out. I think your previous suggestion is much clearer :)
+<viktorklang> This is not thread safe.
+Isn't there an isClosed-method on Socket?
+<viktorklang> Not threadsafe here either
+<viktorklang> Not here either
+<viktorklang> Since this method is only ever used in receiveFrames, you might as well move the method definition into receiveFrames, wdyt?
+<kro> No, there is not one. What if the if-statement were to be removed from #postStop?
+<kro> Thanks, those two methods (receiveFrames, receiveBytes) were moved to 'select'.
+<viktorklang> Great!
+<viktorklang> Switch to checking self.isShutdown and remove the "var isClosed"
+<viktorklang> An idea,
+
+is there any reason that these ops are done on the thread of the selectTask and not inside the ConnectionActor itself? (Or was it like that before, I don't recall?)
+
+Would it be possible to do the receiving of bytes Only in selectTask, and then to the rest in ConnectionActor, then you can capture at the start of the selectTask:
+
+private val selectTask = { () =>
+
++    def connect(endpoint: String) {
+
+
+becomes:
+
+private val selectTask = { 
+  val self = this.self
+() =>
+
+Then you do not need to check self == null anywhere, and you do not need to do select(), but you can do:
+
+if (!self.isShutdown) self.dispatcher.dispatchTask(this)
+
+at the end of selectTask.
+
+
+Thoughts?
+<viktorklang> This will generate a MatchError if frames.length <= 0, is this intentional?
+<kro> Addressed.
+<viktorklang> Great, you can simplify it a bit by:
+
+    receiveFrames() match {
+      case Seq() =>
+      case frames => notifyListener(params.deserializer(frames))
+    }
+<kro> Nice!
+<retronym> `Seq#length` is O(n). 
+<viktorklang> Jason has a valid point, change it to something like:
+
+val i = frames.iterator
+while(i.hasNext) sendBytes(i.next.payload, if (i.hasNext) JZMQ.SNDMORE else 0 )
+
+Thoughts?

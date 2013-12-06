@@ -1,0 +1,87 @@
+<viktorklang> I wonder why "newRoutedActorRef" was chosen when the established standard is "actorOf"?
+
+How is this used from Java?
+
+How do I specify a custom Router implementation?
+
+Why does it return a RoutedActorRef (leaking implementation detail)?
+<viktorklang> Should probably use composition instead of inheritance to provide the Router-functionality, otherwise CustomRouter will never work.
+<viktorklang> Should this class be public?
+<viktorklang> UnsupportedActorRef already implements ScalaActorRef, why is it needed here as well?
+<viktorklang> This never forwards ?/ask futures, and doesn't give an error, leading to silent breakage, is this the intended behavior?
+Why not propagate the channel to "route"?
+<viktorklang> Is this a public method intended for end-user usage?
+<viktorklang> Use the new impl of RemoteActorRef start, that doesn't set it to Running if stopped
+<viktorklang> What is the intended Java API for this?
+<viktorklang> Why doesn't this take a Channel to defer the semantics to the Router impl?
+<viktorklang> Same remark with Channel
+<viktorklang> Shouldn't this use forward?
+<viktorklang> Are all exceptions to be regarded as Dead Actor?
+<viktorklang> Never forward?
+<viktorklang> Should direct never fail over?
+<viktorklang> Yeah, good idea
+<viktorklang> Why does this extend ScalaActorRef?
+<viktorklang> I like that you split up the routing tests, very much needed! Good job! :-)
+<pveentjer> > I wonder why "newRoutedActorRef" was chosen when the established standard is "actorOf"?
+
+It was based on the same naming used as in the akka.cluster.Routing
+
+> How is this used from Java?
+
+The newRoutedActorRef can't be used from Java easily, that is why I added the other method newRoundRobinActorRef
+
+> How do I specify a custom Router implementation?
+
+Not through these methods. We already talked about that this morning and I suggested that the current design isn't very exensible for this reason. But that is how it was modelled with the ClusterActorRef the 'new' routing is based on. It certainly isn't the way how I would have modelled it.
+
+> Why does it return a RoutedActorRef (leaking implementation detail)?
+
+I think that RoutedActorRef is going to be a part of the API just like the LocalActorRef where you can do Router specific stuff on, like adding/removing connections etc.
+
+But.. In Java I would have set this all up through interfaces or in Scala terms, 100% abstract traits. Currently the traits in Akka are not.. 
+<pveentjer> > Should probably use composition instead of inheritance to provide the Router-functionality, otherwise CustomRouter will never wor
+
+That is what we talked about this morning. But to do a redesign on this part, I do not consider a part of this already to big task. But we both agree upon that the current approach is not very extensible friendly. But this is the approach used in the ClusteredActorRef. 
+
+But a Akka developer that wants to provide a custom router can of course always do something like: 
+new RoutedActorRef(actorAddress, connections) with CustomRouter
+if he wants to provide his own implementation.
+<pveentjer> > Should this class be public?
+
+If it should be part of the Api like the LocalActorRef or the RemoteActorRef, it should. But I don't like making 'abstract' classes part of the API instead of 'interfaces'. 
+
+> UnsupportedActorRef already implements ScalaActorRef, why is it needed here as well?
+
+I forgot to remove the one in the routedactorref. I had some problems with the self type if you remember and I fixed it by adding the scala ref... but forget to remove it from the routed ref. Will remove it.
+<pveentjer> This is how it is implemented in the ClusteredActorRef, the design of the RoutedActorRef was based on.
+<pveentjer> I can remove that as well. I added the ScalaActorRef to the UnsupportedActorRef and forgot to remove it from RoutedActorRef and ClusterActorRef.
+
+Will fix that.
+<pveentjer> Currently they are. But there is a ticket for the failover that also needs this question to be answered.
+
+So when we are going to work on the failover, we need to come up with a clear definition of failure.
+https://www.assembla.com/spaces/akka/tickets/1064-routedactorref-should-be-able-to-deal-with-failover
+<pveentjer> I'll write a ticket for it.
+
+What should be done is the following.. when a actor fails that accessed by a direct router.. it will be reconstructed somewhere else because de events are stored and can be replayed (TransactionLog). 
+
+Currently afaik there is no functionality for a failover of such an actor.
+
+
+<viktorklang> > It was based on the same naming used as in the akka.cluster.Routing
+
+Ok, what do you think about pros/cons of having Routing.actorOf(): ActorRef?
+
+> The newRoutedActorRef can't be used from Java easily, that is why I added the other method newRoundRobinActorRef
+
+Can't that be solved with overloading Routing.actorOf to accept a java.lang.Iterable?
+
+> Not through these methods. We already talked about that this morning and I suggested that the current design isn't very exensible for this reason. But that is how it was modelled with the ClusterActorRef the 'new' routing is based on. It certainly isn't the way how I would have modelled it.
+
+How much work do you estimate it to be to have a non-trait based impl?
+
+> I think that RoutedActorRef is going to be a part of the API just like the LocalActorRef where you can do Router specific stuff on, like adding/removing connections etc.
+
+I'm still unsure if we should expose implementation details or not, perhaps we should discuss it on the Akka team meeting on wednesday?
+<viktorklang> Ok, open a ticket for fixing it so that ?/ask works
+<viktorklang> Even when it has a list of local actor refs?

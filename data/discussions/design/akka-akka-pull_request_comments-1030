@@ -1,0 +1,381 @@
+<viktorklang> s/size/size in bytes/ ?
+<viktorklang> or rather "the number of bytes"
+<viktorklang> Weird naming
+<viktorklang> explicit return type
+<viktorklang> explicit return type
+<viktorklang> Any reason for Seq and not Set?
+<jrudolph> We just moved lines around here. Not sure what the original reason was, @rkuhn? Why would using `Set` be an advantage?
+<viktorklang> I don't think we should bake in stats into this
+<viktorklang> AnyRef?
+<sirthias> the `ack` object is transparent to our implementation. If provide something non-null you'll get it back as an Ack message.
+<viktorklang> What's the use-case for the "cause"? (note that the Throwable need to be serializable otherwise we're going to have issues in remoting)
+<viktorklang> Is it OK for retriesLeft to be negative?
+<viktorklang> Is it OK for retriesLeft to be negative?
+<jrudolph> `ack` is a user defined message to be sent back when the write is finished or `null` if no ack is wanted.
+<viktorklang> ?
+<sirthias> This is a simple facility providing introspection onto how many connections the selector actors are currently handling as well as how many connections they have handled so far. Isn't this something valuable?
+<sirthias> No, retriesLeft will never be negative.
+Just realized that this message (as well as all others underneath `/// INTERNAL`) should not be publicly visible.
+Will fix.
+Do you usually add verification (`require`s) also for internal messages?
+<viktorklang> this will be called on every Restart directive, is that the intention?
+<drewhk> I think it should be a Set. Is there a valid reason to have a duplicated option passed in?
+<ryanlecompte> Any reason why we don't use an Option here instead of manually checking for null references?
+<sirthias> Note that you might still have two different options with the same type but different arguments in a set. So a Set doesn't really buy you much. However, it makes construction slightly slower and leads to undeterministic ordering in option application.
+For simplicity I'd prefer an immutable.Seq, but if there is a real advantage to a Set, why not...
+<jrudolph> TcpConnection actors musn't be restarted, so we thought that shouldn't be an issue. Is it? Is there any way to specify that an actor musn't be restarted?
+<viktorklang> You can use a SortedSet with a given Ordering (which might be the name of the Class of the SocketOption? (if you want to avoid duplicates by type)
+<viktorklang> Should be an Option[Any] in that case, ``null`` is the Devils Value.
+<viktorklang> No, we don't explicitly put monitoring code in, it will be woven in (everyone has their own preference of stats collection).
+<sirthias> Ok, that would work. Looks a bit over-engineered to me, just for a few socket options.
+<drewhk> This can happen quite often with a Nack protocol, do we want to log it by default (even if it's debug?)
+<sirthias> Ok, no problem.
+Will be ripped out.
+
+---
+mathias@spray.io
+http://spray.io
+
+On 16.01.2013, at 17:09, Viktor Klang (√) <notifications@github.com> wrote:
+
+>>   case object StopReading extends Command
+>>   case object ResumeReading extends Command
+>> 
+>> +  case object GetStats extends Command
+> 
+> No, we don't explicitly put monitoring code in, it will be woven in (everyone has their own preference of stats collection).
+> 
+> ---
+> Reply to this email directly or view it on GitHub:
+> https://github.com/akka/akka/pull/1030/files#r2667283
+<jrudolph> It's what we discussed last week. How about using a special value instead of `null` for marking that you don't want an acknowledgement?
+<drewhk> Don't we want to catch Terminated here?
+<jrudolph> We had it in there before but currently use the death pact to just die when the watched handler dies.
+<drewhk> I understand, but some additional logging could be useful.
+<drewhk> There is exactly one pending write in this state, so why is this needed? And if it's not guaranteed to have a pending write in this state, then why can we use pendingWrite on line 76?
+<viktorklang> Yes, ``require`` is good for detecting bugs :-)
+<jrudolph> At least you get the DeathPactException in the logging. If you want a custom message you would need handlers in the other states as well.
+<jrudolph> Because `doWrite` may change the value of it.
+<sirthias> Ok, I see. We could rely entirely on the logging on "our side" and change this to a `case object ErrorClosed`.
+Sounds good to me.
+<drewhk> Hmm, it would be nicer if we would be able to copy a part of the buffer, not the whole and then take a slice.
+<drewhk> OK, I see. We are not guaranteed to be able to write in one go.
+<jrudolph> I think that's a bug. We don't have to use `take` at all because the `ByteBuffer` should have proper limits set and `ByteString.apply` should just copy the right amount of bytes. I'll fix that.
+<viktorklang> Or we just make it an immutable.Iterable[SocketOption] and then the user gets to decide if he wants to use a Set or just a List.
+<viktorklang> @jrudolph Yes, that's a much better solution, thanks. And do ``require(ack ne null)``
+<rkuhn> technically we just need to traverse it … (and I agree with the over-engineered comment)
+<drewhk> If someone sends a Write(ByteString.empty, myAck), then it will be not Write.Empty (because of the non-null ack field). Maybe we should add protection against this?
+<viktorklang> Great, thanks :-)
+<viktorklang> Yes, great solution @sirthias 
+<viktorklang> You could always throw an exception in preRestart I guess.
+<rkuhn> it is the job of the supervisor to do this; the exception in here to work against that would have to go into postRestart, though.
+<rkuhn> “of all threads from the dispatcher which TCP connection actors are using”
+<viktorklang> Nice catch!
+<viktorklang> channel.close can throw, right? Which would make this a zombie (if it isn't closed)?
+<viktorklang> I don't see why this match is needed
+<viktorklang> It may be nicer to pass the Settings in the constructor
+<rkuhn> depends on what you look at: `import Tcp._` (or `import Tcp.*;`) will then give you `SO.ReuseAddress`, which looks quite nice to those who actually use this API
+<rkuhn> What happened to the idea of making this an interface? As it stands it is impossible to include the Write itself in the ACK.
+<viktorklang> Great point Roland, that usage is slick
+<rkuhn> no, the user should watch this actor
+<rkuhn> yes, this should probably not be logged unless some extreme debug option is set
+<viktorklang> Shouldn't this be done first?
+<rkuhn> didn’t we say that the write responses should go to the sender of the Write?
+<rkuhn> okay, I’m assuming that all of those will go out, right?
+<drewhk> Good point.
+<viktorklang> Somebody loves this comment, but it is badass, so it should stay
+<rkuhn> do I understand correctly that one actor uses this buffer in a write(), then the next actor runs on that same thread and clears that buffer? Is that safe?
+<drewhk> As I mentioned above, having a Write(ByteBuffer.empty, someAck) might break this (it depends on what should be the semantics of null writes).
+<rkuhn> what if we wrote everything which did fit into the `buffer`, should we not just try again?
+<rkuhn> we don’t like allocations ;-) (seriously, though, reading some comment above this will be fixed by using a marker reference to detect the non-acked case
+<rkuhn> hmm, in case we terminate because of the Selector failing, should we tell the client or not?
+<rkuhn> they can of course always `watch()` us
+<rkuhn> AFAICS it does not matter, apart from sending one more message to deadLetters
+<rkuhn> better move this into the missing “else” clauses in order not to send multiple messages unnecessarily
+<drewhk> :)
+<drewhk> Just pure curiosity: does it have any measurable effect to exchange lines 183, 184?  
+<rkuhn> so you want to call the actual selectors “/system/IO-TCP/0/$a”, “/system/IO-TCP/0/$b” and so on? I think I’d prefer to name the router “selectors”.
+<viktorklang> Also, we do not need to extract the attachment unless the key isValid
+<drewhk> btw, the else structures are a bit confusing. isWritable, isAcceptable and isConnectable are mutually exclusive, but isReadable is not. Is this intentional? If it is, a comment would be welcome :)
+<rkuhn> `case x @ (_: Connect | _: Bind) => selectorPool forward x`
+<viktorklang> I'd move this into:
+
+    val select = new Task {
+      val doSelect: () ⇒ Int = ...
+      def tryRun() {
+        if (doSelect() > 0) {
+           …
+    }
+
+So you don't need to close over "this" to call the function.
+<jrudolph> Yes, I'll fix that.
+<viktorklang> So one needs to send multiple messages to register for more than 1 interest?
+<viktorklang> Always watch first. The fine thing about watch is that it returns its input, so you can write:
+
+    val child = context watch context.actorOf(Awesomeness)
+<rkuhn> where do we need to send more than one at a time?
+<rkuhn> since all the `retriesLeft` funneling is already done, why not decrement by one and forward to context.parent instead of replying to the sender?
+<jrudolph> You mean the debug logs without any information in particular? Yes, those can go.
+<jrudolph> Yes, good catch in the read case we already did that.
+<rkuhn> No, I mean anything which is logged per-message, which usually is not useful either way; it would make the DEBUG loglevel setting in the application.conf completely unusable, if you want to keep (some of) them please put them behind a special flag. Also think about what happens if someone decides to forward logging streams over remoting?
+<jrudolph> What do you mean exactly? Would the actor be a zombie if `close()` throws? Or do you mean the actor is gone and the channel still open? Wouldn't that case be caught by the additional `channel.close` in `postStop`?
+<rkuhn> the handler would not currently get a closedEvent, but the actor would be cleaned up thanks to the stoppingStrategy in its supervisor
+<jrudolph> I think this match can go in any case. But we should still think about the semantics of an empty write.
+<rkuhn> So this means that the configured MaxChannels is a “soft” limit, because we could potentially exceed it due to updating the count asynchronously, no? I’m not saying that is a real problem, just something to be aware of.
+<rkuhn> hmm, not so sure it would actually help; I’d leave this in as a marker for potential benchmarking sessions, though
+<jrudolph> it should be. writing should copy the buffer into the kernel buffer and afterwards the buffer can be reused. even if not everything could be written we currently don't store the remaining direct buffer for later but we will instead copy the remaining again into a direct buffer when the write can continue. i guess that's not yet the best strategy but the simplest.  
+<rkuhn> will the channel.close() then make sure to remove the key from the selector?
+<viktorklang> I'd put this one in a finally
+<viktorklang> I'd probably shave a couple of allocations and do:
+
+    val i = selector.keys.iterator
+    while(i.hasNext) i.next().channel.close()
+<rkuhn> which does imply that true zero-copy I/O does not exist for Java (just collecting a data point here)
+<drewhk> Nice one.
+<viktorklang> http://docs.oracle.com/javase/6/docs/api/java/nio/channels/FileChannel.html#transferTo(long, long, java.nio.channels.WritableByteChannel)
+<rkuhn> `connectionHandler.expectMsgType[Received].data.decodeString("ASCII") must be("testdata")`
+<viktorklang> This shouldn't be here, but in the extension.
+<drewhk> Nice catch. If we leave it a "weak" limit, then we should document it.
+<rkuhn> yes, that is the one existing special case; using Linux syscalls you can mmap a socket and avoid all copying between user-land and kernel for the general case
+<rkuhn> The benefits are more readable failure messages and two lines less; could be used through-out.
+<rkuhn> commented-out code?
+<rkuhn> setup._ was imported
+<rkuhn> this test name suggests more than the test actually verifies
+<rkuhn> this is a neat test harness!
+<rkuhn> Is the Closed not sent by the connectionActor? If so then this test is racy (i.e. it could potentially take a while for that flag to return true). Better watch the actor and `expectMsgType[Terminated]`.
+<viktorklang> Yes, ``isTerminated`` is one of my Sins. Even though the semantics of it is extremely clear, people get it wrong.
+<rkuhn> why is no intervention from the selector needed (à la ChannelWritable) to slurp it through?
+<rkuhn> here `expectMsgPF` makes sense
+<rkuhn> yeah, that’s a good one ;-) But I’d rather open port 0, see which number comes back, close that one and use that port. You never know …
+<rkuhn> should this not have a within() with a lower bound to verify the timeout?
+<rkuhn> why not kill the userHandler? that would verify the watch() as well
+<richdougherty> How about 'Empty' rather than 'empty' so it matches ByteString.empty, Map.empty, etc?
+<viktorklang> Very nice test framework.
+We should enumerate which tests we need.
+
+1) Verify that all options are applied as expected
+2) ...
+<rkuhn> no fixed port numbers, please
+<richdougherty> It's often really useful to get some information about the cause of an error. What about making cause into a String?
+<richdougherty> Brief docs for some of these would be useful.
+<richdougherty> What about a case statement for that condition?
+
+```scala
+val RegisterTimeout = getString("register-timeout") match {
+  case "infinite" => Duration.Undefined
+  case x => Duration(x, MILLISECONDS)
+}
+```
+<rkuhn> yes, that looks a bit cleaner, good one!
+<richdougherty> It looks like NrOfSelectors * MaxChannelsPerSelector can be less than MaxChannels due to rounding. Is that intentional?
+<richdougherty> Actually that code wouldn't quite work due to x being a String, but you get the idea!
+<jrudolph> Is including Write itself in the ACK the only use case for making it an interface? Just to be able to support this case it complicated the code quite a bit so we got rid of it. If you say we want to support this case I'll revert that change.
+<jrudolph> We discussed this and thought of `Duration.Undefined` et al. as examples for other constants being upper case.
+<jrudolph> Yes, we should make sure a user-given zero-byte-Write never ends up in `pendingWrite`.
+<jrudolph> I've got some ideas about how to support `transferTo` but didn't want to put into the first draft. Let's discuss this in the next round.
+<jrudolph> What would be the advantage? If you would put it into the extension it would mean that if two actor systems share the same threads they would use twice as much buffers per thread without being able to use both of them at the same time.
+<jrudolph> Yes, of course, that's much cleaner.
+<jrudolph> it's all one can test in a unit test but I agree the name is too strong.
+<jrudolph> This may be the cause of the instabilities we've seen with the tests. We've already got rid of most of the `isTerminated` but this instance was forgotten.
+<jrudolph> Apart from the messages being other ones on OS X as we found out
+<jrudolph> yes, I wonder where it has gone.
+<jrudolph> @sirthias used his certified in-brain unique port number generator™ to generate this port so how could anyone else use it?
+<jrudolph> Can you stop a TestProbe? Otherwise you would have to duplicate some code to use a real actor instead of a TestProbe for the userHandler. We did that before but this is so much shorter.
+<jrudolph> That's what `pullFromServerSide` is doing.
+<rkuhn> you can send it a PoisonPill or do it like in the test below
+<rkuhn> ah, of course
+<viktorklang> Hint: Buffer size
+<jrudolph> How expensive is accessing the extension?  Because that call would be in the hot path?
+<jrudolph> Or we spend a field in each connection actor to hold the thread local.
+<viktorklang> Also, we shouldn't use ThreadLocals for this, since the same underlying threadpool can be used for multiple systems.
+<viktorklang> I propose that we cache the Tcp Extension in the ConnectionActor:
+
+    val tcp = Tcp(context.system)
+    def registerTimeout = tcp.Settings.RegisterTimeout
+
+Then the buffer can be checked in and out directly from the extension
+
+Getting an extension is a CHM access, so on Java8 it will be completely lockless for reads
+<sirthias> Ok, so I'd vote an `immutable.Traversable[SocketOption]`.
+<viktorklang> Sold! To the man with the awesome hat.
+<sirthias> Yes, I like a `case class ErrorClose(cause: String)` even better. No problems with serializability and still transports some more details as to what happened to the user. Since this case should be rare the extra allocation over a case object does not matter.
+<sirthias> So what's the recommendation here?
+Should we throw an exception in preRestart/postRestart or leave it be and rely on the supervisor (which we fully control) to apply the stoppingStrategy?
+<jrudolph> So should we change anything?
+<viktorklang>     @tailrec def extractMsg(t: Throwable): String = 
+      if (t == null) "unknown"
+      else {
+        t.getMessage match {
+          case null | "" => extractMsg(t.getCause)
+          case msg => msg
+        }
+      }
+<viktorklang> The downside though is that the cause string becomes public api and people will try to match against it to determine whatever
+<viktorklang> Couldn't we just rely on postStop to close and publish? (store away closedEvent if need be for postStop)
+<rkuhn> that exception in postRestart would be the direct equivalent of a `require()`; I’d include it to be sure
+<sirthias> We have tried this but came across an interesting issue:
+How do you express the type of the `Tcp(context.system).Settings` object as a type annotation?
+The weirdness of this is probably a good reason to change the current design of `Settings` as an object.
+I'll propose a solution for this...
+<rkuhn> yes, that would solve it nicely
+<rkuhn> TcpExt#Settings.type should do it
+<sirthias> Actually it doesn't.
+See [this discussion](https://groups.google.com/forum/?fromgroups=#!topic/scala-language/qqbDyxaU24E) on scala-language we started for this topic…
+
+---
+mathias@spray.io
+http://spray.io
+
+On 17.01.2013, at 11:57, Roland Kuhn <notifications@github.com> wrote:
+
+>> +import java.nio.channels.ServerSocketChannel
+>> +import scala.annotation.tailrec
+>> +import scala.collection.immutable
+>> +import scala.util.control.NonFatal
+>> +import akka.actor.{ ActorLogging, ActorRef, Actor }
+>> +import Tcp._
+>> +
+>> +class TcpListener(manager: ActorRef,
+>> +                  selector: ActorRef,
+>> +                  handler: ActorRef,
+>> +                  endpoint: InetSocketAddress,
+>> +                  backlog: Int,
+>> +                  bindCommander: ActorRef,
+>> +                  options: immutable.Seq[SocketOption]) extends Actor with ActorLogging {
+>> +
+>> +  val batchAcceptLimit = Tcp(context.system).Settings.BatchAcceptLimit
+> 
+> TcpExt#Settings.type should do it
+> 
+> ---
+> Reply to this email directly or view it on GitHub:
+> https://github.com/akka/akka/pull/1030/files#r2679188
+<sirthias> Actually this is a bug. It should be:
+
+    context.watch(handler)
+
+and should go first.
+<jrudolph> I think I found two bugs in the TestKit here:
+
+1) TestProbe.watch() fails if the watched actor is terminated in the moment we try to watch it:
+```
+java.lang.AssertionError: assertion failed: expected Watch(TestActor[akka://TcpConnectionSpec/user/$$q]), found Watch(TestActor[akka://TcpConnectionSpec/user/$$p])
+[info]   at scala.Predef$.assert(Predef.scala:179)
+[info]   at akka.testkit.TestKitBase$class.expectMsg_internal(TestKit.scala:295)
+[info]   at akka.testkit.TestKitBase$class.expectMsg(TestKit.scala:281)
+[info]   at akka.testkit.TestKit.expectMsg(TestKit.scala:641)
+[info]   at akka.testkit.TestKitBase$class.watch(TestKit.scala:155)
+[info]   at akka.testkit.TestKit.watch(TestKit.scala:641)
+```
+
+2) I've witnessed a deadlock in commit jrudolph/akka@5719aa0a67fe170ce2ae2bd4f3fdf5ef53e016ae (maybe when the actor has already died when `TestProbe.watch` is called?)
+```
+"TcpConnectionSpec-akka.actor.default-dispatcher-3":
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000e101e558> (a java.util.concurrent.locks.ReentrantLock$NonfairSync)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:156)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:811)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(AbstractQueuedSynchronizer.java:842)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:1178)
+	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:186)
+	at java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:262)
+	at akka.testkit.CallingThreadDispatcher.runQueue(CallingThreadDispatcher.scala:224)
+	at akka.testkit.CallingThreadDispatcher.dispatch(CallingThreadDispatcher.scala:204)
+	at akka.actor.dungeon.Dispatch$class.tell(Dispatch.scala:106)
+	at akka.actor.ActorCell.tell(ActorCell.scala:306)
+	at akka.actor.RepointableActorRef.$bang(RepointableActorRef.scala:154)
+	at akka.actor.ActorRef.tell(ActorRef.scala:108)
+	at akka.actor.dungeon.DeathWatch$class.sendTerminated$1(DeathWatch.scala:55)
+	at akka.actor.dungeon.DeathWatch$$anonfun$tellWatchersWeDied$2.apply(DeathWatch.scala:71)
+	at akka.actor.dungeon.DeathWatch$$anonfun$tellWatchersWeDied$2.apply(DeathWatch.scala:71)
+	at scala.collection.immutable.RedBlackTree$.foreachKey(RedBlackTree.scala:84)
+	at scala.collection.immutable.TreeSet.foreach(TreeSet.scala:151)
+	at akka.actor.dungeon.DeathWatch$class.tellWatchersWeDied(DeathWatch.scala:71)
+	at akka.actor.ActorCell.tellWatchersWeDied(ActorCell.scala:306)
+	at akka.actor.dungeon.FaultHandling$class.finishTerminate(FaultHandling.scala:202)
+	at akka.actor.dungeon.FaultHandling$class.terminate(FaultHandling.scala:159)
+	at akka.actor.ActorCell.terminate(ActorCell.scala:306)
+	at akka.actor.ActorCell.systemInvoke(ActorCell.scala:369)
+	at akka.dispatch.Mailbox.processAllSystemMessages(Mailbox.scala:256)
+	at akka.testkit.CallingThreadDispatcher.runQueue(CallingThreadDispatcher.scala:226)
+	at akka.testkit.CallingThreadDispatcher.systemDispatch(CallingThreadDispatcher.scala:184)
+	at akka.actor.dungeon.Dispatch$class.restart(Dispatch.scala:91)
+	at akka.actor.ActorCell.restart(ActorCell.scala:306)
+	at akka.actor.LocalActorRef.restart(ActorRef.scala:355)
+	at akka.actor.SupervisorStrategy.restartChild(FaultHandling.scala:310)
+	at akka.actor.OneForOneStrategy.processFailure(FaultHandling.scala:386)
+	at akka.actor.SupervisorStrategy.handleFailure(FaultHandling.scala:284)
+	at akka.actor.dungeon.FaultHandling$class.handleFailure(FaultHandling.scala:248)
+	at akka.actor.ActorCell.handleFailure(ActorCell.scala:306)
+	at akka.actor.ActorCell.autoReceiveMessage(ActorCell.scala:400)
+	at akka.actor.ActorCell.invoke(ActorCell.scala:385)
+	at akka.dispatch.Mailbox.processMailbox(Mailbox.scala:230)
+	at akka.dispatch.Mailbox.run(Mailbox.scala:212)
+	at akka.dispatch.ForkJoinExecutorConfigurator$MailboxExecutionTask.exec(AbstractDispatcher.scala:501)
+	at scala.concurrent.forkjoin.ForkJoinTask.doExec(ForkJoinTask.java:262)
+	at scala.concurrent.forkjoin.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:975)
+	at scala.concurrent.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1478)
+	at scala.concurrent.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:104)
+"pool-2196-thread-2":
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x00000000e21a0da0> (a java.util.concurrent.locks.ReentrantLock$NonfairSync)
+	at java.util.concurrent.locks.LockSupport.park(LockSupport.java:156)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(AbstractQueuedSynchronizer.java:811)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(AbstractQueuedSynchronizer.java:842)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:1178)
+	at java.util.concurrent.locks.ReentrantLock$NonfairSync.lock(ReentrantLock.java:186)
+	at java.util.concurrent.locks.ReentrantLock.lock(ReentrantLock.java:262)
+	at akka.testkit.CallingThreadDispatcher.runQueue(CallingThreadDispatcher.scala:224)
+	at akka.testkit.CallingThreadDispatcher.systemDispatch(CallingThreadDispatcher.scala:184)
+	at akka.actor.dungeon.Dispatch$class.sendSystemMessage(Dispatch.scala:113)
+	at akka.actor.ActorCell.sendSystemMessage(ActorCell.scala:306)
+	at akka.actor.LocalActorRef.sendSystemMessage(ActorRef.scala:351)
+	at akka.actor.dungeon.DeathWatch$$anonfun$watch$1.apply$mcV$sp(DeathWatch.scala:21)
+	at akka.actor.dungeon.DeathWatch$$anonfun$watch$1.apply(DeathWatch.scala:20)
+	at akka.actor.dungeon.DeathWatch$$anonfun$watch$1.apply(DeathWatch.scala:20)
+	at akka.actor.dungeon.DeathWatch$class.maintainAddressTerminatedSubscription(DeathWatch.scala:159)
+	at akka.actor.dungeon.DeathWatch$class.watch(DeathWatch.scala:20)
+	at akka.actor.ActorCell.watch(ActorCell.scala:306)
+	at akka.testkit.TestActor$$anonfun$receive$1.applyOrElse(TestKit.scala:65)
+	at akka.actor.ActorCell.receiveMessage(ActorCell.scala:425)
+	at akka.actor.ActorCell.invoke(ActorCell.scala:386)
+	at akka.testkit.CallingThreadDispatcher.runQueue(CallingThreadDispatcher.scala:238)
+	at akka.testkit.CallingThreadDispatcher.dispatch(CallingThreadDispatcher.scala:204)
+	at akka.actor.dungeon.Dispatch$class.tell(Dispatch.scala:106)
+	at akka.actor.ActorCell.tell(ActorCell.scala:306)
+	at akka.actor.RepointableActorRef.$bang(RepointableActorRef.scala:154)
+	at akka.testkit.TestKitBase$class.watch(TestKit.scala:154)
+	at akka.testkit.TestKit.watch(TestKit.scala:641)
+	at akka.io.TcpConnectionSpec.assertActorTerminated(TcpConnectionSpec.scala:430)
+[...]
+```
+
+Do you think those are valid ones? I'll file issues then.
+<sirthias> And it is meant to convey that we are relying on a `DeathPactException` rather than handling `Terminated` ourselves.
+<viktorklang> Yep, and it is a badass comment :-)
+<sirthias> Yes. Good catch.
+<jrudolph> It seems strange to have to introduce another field to transport information to the `postStop` call. Couldn't we just wrap the sending with try/finally ?
+<viktorklang> I find it more brittle to duplicate the cleanup code.
+<viktorklang> It's either that or call doCloseConnection on postStop
+<jrudolph> We don't save anything by calling `doCloseConnection` on postStop because its parameters would have to be transported to postStop as well. So, I'll just introduce a field.
+<rkuhn> yes, please file ticket (don’t have time to dig into them right now)
+<sirthias> Yeah, I can see the current solution be sub-optimal. I'll apply some more love...
+<sirthias> I see. Actually I wanted to name the selectors “/system/IO-TCP/selectors/0”, “/system/IO-TCP/selectors/1”, etc,
+but couldn't figure out how to do it. Is this possible?
+<rkuhn> no, unfortunately not; $a, $b, … does not look too bad
+<sirthias> Yes, right, we talked about this. Actually this also allows us to get rid of the `Reject` message type.
+<sirthias> Yes, it's a soft limit. I'll improve the docs in the reference.conf.
+<jrudolph> We now put a throw into postRestart.
+<jrudolph> This is now hidden behind a config setting `trace-logging`
+<jrudolph> There's now a dedicated case which directly acks zero-byte Writes.
+<jrudolph> Fixed.
+<sirthias> Registered listeners or connections only close their channel before terminating themselves (or in postStop()). Termination triggers unregistration in the selector. So the current implementation should avoid any leaks here.
+<sirthias> MaxChannels is a "soft" limit. I have updated the docs in the reference.conf to also note that the implementation might accept fewer connections than the configured limit (as well as more).
+<rkuhn> this should be switched with the empty line above
+<rkuhn> these two cases can only ever match when the and-check was pointless, because if either of OP_READ or OP_WRITE was set these case statements will not be reached
+<sirthias> They will also be reached when, for example, `OP_READ & OP_CONNECT` is set, which is sometimes the case (depending on the plattform implementation).
+<rkuhn> missing copyright header
+<rkuhn> ah, I see, thanks; not sending the ChannelReadable (for example) right after ChannelConnectable makes it require one more round-trip while keeping the ConnectionActor simpler, or do we immediately try to read? (/me goes looking)
+<rkuhn> we _could_ potentially try to read immediately, which may speed things up on the server side (unless there’s something I don’t know about how sockets work, which is entirely possible)
+<jrudolph> I think the reasoning was that the connection actor has to wait for a `Register` message before it can do anything with incoming reads. So it waits before declaring `ReadInterest` for the `Register` message.
+<jrudolph> I agree we could try that. The code shouldn't change more than replacing that line with a `doRead` call.

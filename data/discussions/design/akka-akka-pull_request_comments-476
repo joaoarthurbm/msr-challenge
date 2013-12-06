@@ -1,0 +1,184 @@
+<patriknw> I think we should have a ssl section
+
+    ssl {
+      enable = off
+      key-store = "keystore"
+      ...
+    }
+<patriknw> is this really an error that can be ignored?
+if ssl is configured you can probably not accept to run without it because of wrong configuration
+<patriknw> same here
+<patriknw> since you use .isDefined combinded with .get
+
+    sslHandler match {
+      case Some(h) =>  // h
+      case None =>
+<viktorklang> I wouldn't check for nulls here
+<viktorklang> I'd probably escalate this as this is a serious security issue
+<viktorklang> never use Option.get. Does it really make sense to keep them as individual options, they are both required, right? So make it Option[(String, String)]
+<viktorklang> Avoid this branching here by concating the empty list in case it's not defined and a List with the one item if defined.
+<viktorklang> Don't use this, use NettyRemoteTransport.notifyListeners() instead
+<viktorklang> Drop this check
+<viktorklang> escalate
+<viktorklang> escalate
+<viktorklang> I don't really like methods with innocent sounding names like "getX" that do a whole lot more than just getting something.
+Any suggestions as how to improve on this?
+<dev10> On 2012/05/25 06:22 PM, viktorklang wrote:
+>> +
+>> +  def getSSLHandler_? : Option[SslHandler] = {
+> I don't really like methods with innocent sounding names like "getX" that do a whole lot more than just getting something.
+> Any suggestions as how to improve on this?
+I can rename it to 'initialiseAndGetSSLHandler_?' or more verbose
+'initialiseSSLContextAndGetSSLHandler_?'
+<dev10> On 2012/05/25 07:49 AM, patriknw wrote:
+>> @@ -151,6 +151,33 @@ akka {
+>>  
+>>        # (O) Maximum time window that a client should try to reconnect for
+>>        reconnection-time-window = 600s
+>> +
+>> +      # (I&O) Enable SSL/TLS encryption.
+>> +      # This must be enabled on both the client and server to work.
+>> +      enable-ssl = off
+> I think we should have a ssl section
+>
+>     ssl {
+>       enable = off
+>       key-store = "keystore"
+>       ...
+>     }
+>
+> ---
+> Reply to this email directly or view it on GitHub:
+> https://github.com/akka/akka/pull/476/files#r879933
+perfect, will do
+<viktorklang> I'd prefer something like: tryInitializeSSL (dropping the _?)
+<viktorklang> Can we improve on the helpfulness of this error message?
+<viktorklang> I suggest to just wrap in a RemoteTransportException and rethrow and let the layer above decide if it should be logged or not
+<viktorklang> We definitely want to help the user identify which setting was missing
+<viktorklang> Just wrap in a RemoteTransportException and let the caller decide if it should be logged or not
+<viktorklang> Doing the changes below means that you don't need to provide the NettyRemoteTransport into this method
+<viktorklang> This should be private[akka] and be documented as internal api.
+<viktorklang> Why these changes?
+<patriknw> it's a MultiNodeSpec and should therefore be tagged as long-running. It's that in master also.
+<dev10> On 2012/05/30 04:30 PM, viktorklang wrote:
+>> @@ -52,7 +52,7 @@ class RandomRoutedRemoteActorSpec extends MultiNodeSpec(RandomRoutedRemoteActorM
+>>    def initialParticipants = 4
+>>  
+>>    "A new remote actor configured with a Random router" must {
+>> -    "be locally instantiated on a remote node and be able to communicate through its RemoteActorRef" in {
+>> +    "be locally instantiated on a remote node and be able to communicate through its RemoteActorRef" taggedAs LongRunningTest in {
+> Why these changes?
+>
+> ---
+> Reply to this email directly or view it on GitHub:
+> https://github.com/akka/akka/pull/476/files#r900378
+not sure, will try to revert
+<dev10> On 2012/05/31 07:46 AM, patriknw wrote:
+>> @@ -52,7 +52,7 @@ class RandomRoutedRemoteActorSpec extends MultiNodeSpec(RandomRoutedRemoteActorM
+>>    def initialParticipants = 4
+>>  
+>>    "A new remote actor configured with a Random router" must {
+>> -    "be locally instantiated on a remote node and be able to communicate through its RemoteActorRef" in {
+>> +    "be locally instantiated on a remote node and be able to communicate through its RemoteActorRef" taggedAs LongRunningTest in {
+> it's a MultiNodeSpec and should therefore be tagged as long-running. It's that in master also.
+>
+> ---
+> Reply to this email directly or view it on GitHub:
+> https://github.com/akka/akka/pull/476/files#r905537
+okay, thanks for that
+<patriknw> I'm confused about what this diff shows, master already has
+
+`"lookup remote actor" taggedAs LongRunningTest in {`
+
+so why does it show up here?
+probably no problem
+<patriknw> how often is this invoked?
+has it been tested on linux (the blocking issue we discussed previously)
+<patriknw> jsessionid should probably be removed from this url?
+<patriknw> jsessionid
+<patriknw> great that you have fixed ways around the SHA1PRNG issue, just to make sure I understand, what is the default if user doesn't configure anything? if default will still use the broken SHA1PRNG I think we should log warning (on Linux)
+<dev10> On 2012/06/07 10:59 AM, patriknw wrote:
+>> +   * Construct a SSLHandler which can be inserted into a Netty server/client pipeline
+>> +   */
+>> +  def apply(settings: NettySettings, log: LoggingAdapter, isClient: Boolean): SslHandler = {
+>> +    if (isClient) initialiseClientSSL(settings, log)
+>> +    else initialiseServerSSL(settings, log)
+>> +  }
+>> +
+>> +  private def initialiseCustomSecureRandom(settings: NettySettings, log: LoggingAdapter): SecureRandom = {
+>> +    /**
+>> +     * According to this bug report: http://bugs.sun.com/view_bug.do;jsessionid=ff625daf459fdffffffffcd54f1c775299e0?bug_id=6202721
+>> +     * Using /dev/./urandom is only necessary when using SHA1PRNG on Linux
+>> +     * <quote>Use 'new SecureRandom()' instead of 'SecureRandom.getInstance("SHA1PRNG")'</quote> to avoid having problems
+>> +     */
+>> +    settings.SSLRandomSource match {
+>> +      case Some(path) ⇒ System.setProperty("java.security.egd", path)
+>> +      case None       ⇒
+> great that you have fixed ways around the SHA1PRNG issue, just to make sure I understand, what is the default if user doesn't configure anything? if default will still use the broken SHA1PRNG I think we should log warning (on Linux)
+>
+> ---
+> Reply to this email directly or view it on GitHub:
+> https://github.com/akka/akka/pull/476/files#r942223
+No, the default is what I had it as previously. It uses the internal
+Java SecureRandom algorithm, not SHA1PRNG as the quote states.
+<dev10> On 2012/06/07 10:55 AM, patriknw wrote:
+>> +
+>> +        # (I&O) Protocol to use for SSL encryption, choose from:
+>> +        # Java 6 & 7:
+>> +        #   'SSLv3', 'TLSv1'
+>> +        # Java 7:
+>> +        #   'TLSv1.1', 'TLSv1.2'
+>> +        protocol = "TLSv1"
+>> +
+>> +        # You need to install the JCE Unlimited Strength Jurisdiction Policy Files to use AES 256
+>> +        # More info here: http://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html#SunJCEProvider
+>> +        supported-algorithms = ["TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_RSA_WITH_AES_256_CBC_SHA"]
+>> +
+>> +        # Using /dev/./urandom is only necessary when using SHA1PRNG on Linux to prevent blocking
+>> +        # It is NOT as secure because it reuses the seed
+>> +        # '' => defaults to /dev/random or whatever is set in java.security for example: securerandom.source=file:/dev/random
+>> +        # '/dev/./urandom' => NOT '/dev/urandom' as that doesn't work according to: http://bugs.sun.com/view_bug.do;jsessionid=ff625daf459fdffffffffcd54f1c775299e0?bug_id=6202721
+> jsessionid should probably be removed from this url?
+>
+> ---
+> Reply to this email directly or view it on GitHub:
+> https://github.com/akka/akka/pull/476/files#r942202
+will do
+<rkuhn> Why not throw an exception here instead of having to check for `None` in the code which uses it? That keeps config stuff local and simplifies the code which consumes these settings.
+<rkuhn> And with my above suggestion, these validations would not be necessary: simply have defaults which do not trigger them (as you did already).
+<patriknw> good idea, but then these must be lazy, not used when enabled = false
+<rkuhn> why not test actual communication with SSL? could include non-expiring certificates with the source.
+<patriknw> ok
+<rkuhn> no: if the user changes this to `""` without enabling SSL, why should he reasonably expect it to work?
+<patriknw> ok, but it is `""` as default in reference.conf
+then it must be removed (commented out) from reference.conf
+<rkuhn> No, actually it is `"keystore"` in reference.con. But an even cleaner solution would be to change that to the empty string, change the settings to lazy val and to not being of type Option, then force the lazy vals in `EnableSSL` to validate them. This gives exceptions only if SSL is on, and it gives them immediately, and the rest of the code does not need to be bothered.
+<patriknw> ok, yes that was what I was thinking when I proposed lazy. good
+<viktorklang> This should be written in Scala
+<viktorklang> This should be written in Scala
+<viktorklang> This should be written in Scala
+<viktorklang> This should be written in Scala
+<dev10> On 2012/06/07 10:48 AM, patriknw wrote:
+>> +     */
+>> +    @Override
+>> +    protected void engineNextBytes(byte[] bytes) {
+>> +        rng.nextBytes(bytes);
+>> +    }
+>> +
+>> +    /**
+>> +     * Returns the given number of seed bytes.  This call may be used to
+>> +     * seed other random number generators.
+>> +     *
+>> +     * @param numBytes the number of seed bytes to generate.
+>> +     * @return the seed bytes.
+>> +     */
+>> +    @Override
+>> +    protected byte[] engineGenerateSeed(int numBytes) {
+>> +        return (new SecureRandom()).generateSeed(numBytes);
+> how often is this invoked?
+> has it been tested on linux (the blocking issue we discussed previously)
+>
+> ---
+> Reply to this email directly or view it on GitHub:
+> https://github.com/akka/akka/pull/476/files#r942174
+It is never called

@@ -1,0 +1,17 @@
+<viktorklang>     case Event(Terminated(r), _) if r == reader.orNull ⇒ publishAndThrow(new EndpointDisassociatedException("Disassociated"))
+<viktorklang> Isn't there a risk of silent issues here?
+<drewhk> This should not be here, this is specific to the TestTransport
+<patriknw> without it this test fails: https://github.com/akka/akka/blob/master/akka-remote/src/test/scala/akka/remote/RemotingSpec.scala#L139
+Let us verify that again, but I think it had something with "akka.test" protocol not registered, which is a good error to log.
+<drewhk> No, it does not mean that "akka.test" is not regisered -- that would is  
+logged elsewhere. This specific error message is the way of TestTransport  
+to tell you that there is no remote transport that listens to that  
+address. This is an analogue of trying to connect to a port that no one  
+listens to.
+<patriknw> ah, then I misunderstood the error message, I'll revisit that and probably have to delete that test (or do you have a suggestion of how to test)?
+<drewhk> You might as well change the error message :) You can listen to  
+AssociationErrorEvent as it will be published by the publishAndThrow call.
+<patriknw> alright
+<patriknw> verified with Endre
+<patriknw> fixed
+<patriknw> fixed

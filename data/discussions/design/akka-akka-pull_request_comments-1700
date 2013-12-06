@@ -1,0 +1,236 @@
+<viktorklang> What's the impact on throughput due to this change?
+<ryanlecompte> Typo?
+<ryanlecompte> reverseIterator?
+<krasserm> There's no significant impact. Throughput benchmark results are at https://www.assembla.com/spaces/akka/tickets/3574-akka-persistence-prototype?comment=355843673#comment:355843673
+<krasserm> Yes, will change to `mss.reverseIterator.filter(_._1.sequenceNr <= toSnr)`
+<krasserm> Yes, will change to `processorId`
+<patriknw> we have discussed alternatives, and will evaluate carefully, probably when you are back in town @viktorklang 
+<patriknw> if this is to simulate code from inside an actor it should be `getContext().actorOf`
+<patriknw> wonder if we need to qualify this name more? perhaps `processorId`?
+<patriknw> final?
+<patriknw> I like the alternative, when would it be better with Message.create?
+<patriknw> is `getCurrentMessage` same as `msg`?
+<patriknw> final?
+<patriknw> should have the experimental note, see http://doc.akka.io/docs/akka/2.2.1/java/io.html
+<patriknw> Does that mean that recover is mandatory? Is it possible to skip recover (for some reason)?
+<patriknw> it should be clarified if these two alternatives are equivalent or when to use which
+<patriknw> This is scary business, there is no real ordering guarantee between messages sent with ActorSelection relative to those sent with ActorRef. For example the last replayed message sends msg1 with ActorSelection and next msg2 is sent with ActorRef. msg2 may be received before msg1.
+<patriknw> interleaved actorSelection and actorRef might result in wrong delivery order
+<patriknw> a the?
+<patriknw> I would prefer more describing parameter names
+<patriknw> I mean longer
+<patriknw> `Option(current)` does the same thing
+<patriknw> yes, optional configurable dispatcher, such as cluster
+<patriknw> or should it always be a dedicated dispatcher due to IO?
+<patriknw> should we make it `def processorId(ref: ActorRef): String` to make it consumable for java, otherwise these should be INTERNAL API
+<patriknw> I guess there is a reason for `private [persistence]`?
+It should then be marked as INTERNAL API (it is public from java).
+I think this will also pollute the namespace of java actor extending UntypedProcessor.
+<patriknw> I suggest that it should be named `processorId`
+<patriknw> might be more clear without overloaded method names
+`process` vs `processPersistent`?
+<patriknw> can we afford the allocation of `Some`?
+<patriknw> `_sequenceNr += 1`
+<patriknw> not sure if this will ever be sent over the wire, but if there is a chance, so please add `@SerialVersionUID(1L)`
+<patriknw> When would you not want to do this?
+I'm not convinced of the value of this trait.
+Could it be default behavior in `Processor` constructor, with possibility to override?
+<patriknw> should it be `final`?
+<patriknw> Do we see any alternatives to this trait?
+The life-cycle methods call chain are difficult enough to remember and this adds to the complexity for the user.
+Would an alternative be that the user has to do it themself from ordinary preRestart, but provide some convenience helpers for the unwrapping and construction of Recover from the `message: Option[Any]`
+
+<krasserm> Should be INTERNAL API
+<patriknw> Should this create the `Props` only? Passing ActorRefFactory (if actor context) and potentially using it in the wrong place (outside the actor) feels scary.
+<krasserm> Will fix it
+<patriknw> Might be misleading to call this `props`, since that is used for other things. I think we have used `Settings` at several places for similar things.
+<krasserm> Isn't it a bit redundant to have `processorId` on trait `Processor`? For that reason, I've chosen `id` on purpose.
+<patriknw> um, yes
+<krasserm> Yes
+<patriknw> Might be better to place the test config inline, and use `ConfigFactory.parseString`
+<krasserm> In the Scala API, the idea was to have no difference in `Message` creation inside and outside a processor (i.e. using `Message(payload)`). The Java equivalent for message creation inside a processor is `Message.create(payload, getCurrentMessage())`. But I'm fine to recommend using `msg.withPayload(...)` inside processors (Scala and Java) and using `Message(payload)` (Scala) and `Message.create(payload, null)` (Java) outside processors. If someone by accident uses `Message(payload)` inside a processor, it wouldn't matter (because of implicit `Option[Message]`). In Java, `getCurrentMessage()` *must* be called instead.
+<krasserm> Yes
+<patriknw> I'm thinking of how it looks like in user code, it will often be overridden, it prevents the user to use a field `id` for other things. 
+<krasserm> Will add it.
+<patriknw> yes, this is worth thinking about
+<krasserm> Recovery is mandatory, no possibility to skip. Otherwise it would be impossible to consistently recover a network of processors as they could receive new messages (from other recovering processor) before their own recovery. This would change the ordering of messages from previous application runs, for example.
+<krasserm> I'm for recommending [this](#discussion_r6122425) and additionally mention equivalent alternatives and caveats. 
+<krasserm> Maybe we should mention the tradeoffs more clearly here
+
+- +: at-least-once delivery, conversation recovery
+- -: no ordering guarantees for unconfirmed messages
+
+Also, receivers could use message sequence numbers (generated by processor) to re-order received messages.
+
+Do you see other alternatives/mechanisms how this could be improved?
+<krasserm> Same arguments as in [this comment](#discussion_r6122849).
+<krasserm> Will fix it
+<krasserm> Will do
+<krasserm> Right, will change it
+<krasserm> Having a dedicated dispatcher is a reasonable first step. We can make it configurable any time later, if needed.
+<krasserm> The reason for `private[persistence]` is that it is used by the `RecoverOnRestart` trait. Depending on the alternatives to `RecoverOnRestart` (see below), `journal` will become either INTERNAL API or `private`.
+<krasserm> Makes sense, let's name it `processorId`.
+<krasserm> Will change it
+<krasserm> Will change it
+<krasserm> You mean var `_currentMessage` should have type `Message` and can be `null` if there's no current persistent `Message`? Should method `currentMessage` still return Option[Message]?
+<krasserm> Will change
+<krasserm> Can be on wire, will add `@SerialVersionUID(1L)`
+<krasserm> This is what most processors may want to do. So having it as default behavior with opt-out makes sense. One example where one wouldn't do auto-recovery is when two processor A and B depend on each other. This means both must have been created before they can send messages to each other, and, message may already be sent during recovery. In this case an application would first create instances of A and B and then recover them. 
+
+What about moving the above `preStart` implementation to `Processor` and make it `final` so that concrete processors can only override `preRestartProcessor`? See also [this comment](#discussion_r6123602)
+<krasserm> Similar to what I proposed [here](#discussion_r6123408), we could move the `preRestart` and `postRestart` implementations to `Processor` and make them `final`. This would recover on restart by default, and concrete processors should override `preRestartProcessor` and `postRestartProcessor` if needed.
+
+To customize processor recovery, the processor pre-restart hook could return an `Option[Recover]` which lets implementors define custom recovery parameters and make recovery optional too. The same idea can be applied to `def preStartProcessor: Option[Recover]` too.
+
+Reasonable default implementations for processor life-cycle hooks are possible.
+<krasserm> This should create the actual `ActorRef`. `JournalFactory` is preliminary and will likely be replaced when I start working on the journal plugin API. I'll make it `private[persistence]` meanwhile.
+
+I understand the issue of using an actor context in the wrong place but can you prevent that at all? For example an actor could reply the context to a sender, a `PromiseActorRef`, and the context is then used in the `onSuccess` callback.
+<krasserm> Will rename to `Settings`
+<krasserm> Will do
+<krasserm> See [this comment](#discussion_r6123602)
+<patriknw> makes sense
+<patriknw> I don't see any good alternatives, but we must think this through thoroughly.
+
+A channel could perhaps "stop" delivering (buffering) until it has fully resolved the selection to a real ref (using Identify)
+<patriknw> yes, that was my thought, I'm not sure it is needed
+my assumption is that currentMessage is normally not called (and only called once (or a few times for each message))
+<krasserm> Sounds good to me, will try that
+<patriknw> sounds good, reducing number of combinations
+would `RecoverOnRestart` be the default behavior?
+
+<patriknw> ok
+<krasserm> `currentMessage` won't be called if users follow the `msg.withPayload(...)` approach discussed [here](#discussion_r6122425). It will be called only if users create new outbound messages via `Message(...)`. This could be another good reason to recommend the `msg.withPayload(...)` approach inside processors.
+<krasserm> Yes, would be default, same as recover on start.
+<patriknw> good, thanks
+<viktorklang> .orNull
+<krasserm> Right but will be `def currentMessage = Option(_currentMessage)` once [this change](#discussion_r6123222) is implemented.
+<krasserm> A few more thoughts on this. First, `akka-persistence` should completely free applications from dealing with `ActorSelection` directly to resolve potentially invalid stored sender references. Resolving sender references is anyway only needed in two channel usage scenarios (inside a processor).
+
+1. when a processors forwards the stored sender of a replayed message to a channel: `channel forward Deliver(m, destination)` 
+2. when a processor replies to a sender: `channel ! Deliver(m, sender)`
+
+This means we can always hide resolution of actor references (via `Identify`) for replayed messages inside `Channel` and let applications only specify when they want to have a resolution. This could look like
+
+- `channel forward Deliver(m, destination, Resolve.Sender)` and
+- `channel ! Deliver(m, sender, Resolve.Destination)` (because `sender` is used as channel destination)
+
+A resolution will only take place for replayed messages that have not been retained by the channel. This usually affects only a few messages after a crash, for example. The default is to do no resolution at all i.e. do not pass a `Resolve.*` argument to `Deliver.apply`. 
+
+This change would also make the public `Message.replayed` method obsolete (because `Channel` s could get this information via an internal API) and we could change `Message` pattern matching to `case Message(payload, sequenceNr)`.
+
+Processors can still determine whether they are in recovery mode (i.e. if messages are replayed) by calling `def recovering: Boolean` on `Processor`.
+<patriknw> A different aspect, that I think @rkuhn mentioned at some point, is if references to the processor itself should be stable after recovery (stop/start), i.e. the processor actor always gets the same uid.
+
+To me it is not clear what implications that would have. E.g. watch/Terminated.
+I think it would also be complicated to implement, as the uid is assigned before the actor is really created.
+
+Anyway, all this needs discussion, and we might not be able to make it perfect in the first iteration.
+<krasserm> Yes, I proposed that in an email but then decided to start without relying on persistent actor uid. The alternative to persistent actor uids are the resolve strategies mentioned above which are IMO good enough for a first iteration. Fully agree that this should be further discussed.
+<drewhk> indeed, a tricky one.
+<drewhk> what happens if the leveldb.write(batch, ...) call fails? withBatch should probably accept a success and a failure thunk, and send Written only if that write call acually did its job. Btw, is leveldb.write synchronous?
+<drewhk> use named parameters for clarity
+<drewhk> while I like short variable names, here they are part of the API by being parameter names. I recommend using slightly more readable ones ("cid" particularly, but I always confused by "snr", too, I always think of "signal-to-noise-ratio" ;) )
+<drewhk> Shouldn't byte order be explicitly set?
+<drewhk> You might want to inline confirmTarget and confirmMessage since they are named parameters anyway.
+<drewhk> Names "d" and "r" are rather cryptic
+<drewhk> what does "nid" mean? Please use more descriptive identifiers
+<drewhk> since the only valid sequence is (started = 0, ended = 0) -> (started = 1, ended = 0) -> (started = 1, ended = 1), isn't it more clear to use only one variable with symbolic values NOT_STARTED, STARTED, FINISHED, being slightly more readable (IMHO) and also disallowing the invalid (started = 0, ended = 1) state?
+<drewhk> can this be lost? (e.g. write failed)
+<drewhk> I am not sure it can happen, but might the user interfere with the internals by using the stash for his own purposes? In other words, can Processor actors use the stash they have?
+<drewhk> If I understand correctly, the need for this is to maintain order between persisted and non-persisted messages by sending them through the same journal? Maybe it deserves a comment. Also please comment that the reason for separate Looped and Written messages (instead of a simple flag "persisted") is that one stores Any, while the other stores MessageImpl
+<drewhk> Hm. I found this method a bit dangerous. Another approach would be to still save the message with a flag (e.g. "failcount = 1", maybe even saving some data about the failure) and optionally ignore the message during replay. WDYT?
+<drewhk> Idea: do we want to support markers? Basically just named sequence numbers so upon recovery it is possible to go only up to a certain "checkpoint"? Might be another option/addition to deal with dangerous messages (see my comment on the delete method: https://github.com/akka/akka/pull/1700/files#r6155494)
+<drewhk> What I actually wanted to say that it is easy to ignore a saved message (if there is appropriate metadata, like  "failcount" for example), while it is impossible to recover something that was not saved.
+<bantonsson> A small note on performance. As long as nobody is overriding `receiveAround`, the JVM will inline it and we will see no difference. Have we done any test where one class is overriding it? It doesn't have to be running the test as long as it's loaded and instantiated.
+<krasserm> With the current implementation, the user can interfere with internals when using the stash. What is needed is to isolate the stash used by `Processor` internally from the stash used by the processor implementation class. 
+
+One possibility to support that is to have 'named' stashes, for example: `stash("my-stash")` and `unstashAll("my-stash")` where the `Processor` internally uses a special named stash and the processor implementation class continues to use the 'default' stash using `stash()` and `unstashAll()` (where only the default stash is part of the public API). This would require an extension to the existing `Stash` (or another `NamedStash` trait, for example).
+
+Potential duplicates of replayed and unstashed messages (during a restart) can easily be filtered `Processor` -internally using sequence numbers. Duplicates may arise if a processor implementation stashes a persistent message and then crashes/restarts.
+<krasserm> Already [changed locally](https://github.com/eligosource/akka/commit/15d2e487fec271c859cfbd4efa76898ba9c034a3). Will be part of the next pull request update.
+<krasserm> Yes, `leveldb.write` is synchronous and it throws an exception on failure. This will restart the journal, receive the next `Write` and the processor will never see message for which writing failed. 
+
+If a client wants to have a confirmation that a write actually succeeded it should expect an (application-level) reply from a processor. What a journal could do is to publish a `WriteFailed` to the event bus in case of a `leveldb.write` failure.
+<krasserm> Already [changed locally](https://github.com/eligosource/akka/commit/15d2e487fec271c859cfbd4efa76898ba9c034a3). Will be part of the next pull request update.
+<krasserm> Already [changed locally](https://github.com/eligosource/akka/commit/15d2e487fec271c859cfbd4efa76898ba9c034a3). Will be part of the next pull request update.
+<krasserm> Already [changed locally](https://github.com/eligosource/akka/commit/15d2e487fec271c859cfbd4efa76898ba9c034a3). Will be part of the next pull request update.
+<krasserm> Will do
+<krasserm> Good idea, will change it, maybe using `NOT_RECOVERED`, `RECOVERING`, `RECOVERED`
+<krasserm> See [this comment](https://github.com/akka/akka/pull/1700#discussion_r6201299)
+<krasserm> > If I understand correctly, the need for this is to maintain order between persisted and non-persisted messages by sending them through the same journal?
+
+Exactly.
+
+> Maybe it deserves a comment. Also please comment that the reason for separate Looped and Written messages (instead of a simple flag "persisted") is that one stores Any, while the other stores MessageImpl
+
+Will do
+<krasserm> Fully agree on this. I anyway planned to implement that as it is needed for an audit log.
+<krasserm> I like the checkpoint idea. Will keep it in mind for a separate ticket.
+<bantonsson> Does this constant offset have any special meaning or is it just arbitrarily chosen?
+<patriknw> Exactly how it is implemented is up to the journal implementation I guess. A journal that doesn't support update (or think it is too costly) could store the "failed marker" in a separate collection.
+<bantonsson> Maybe it's just me., but I prefer 'keyToBytes(idToKey(nidOffset))'
+<bantonsson> It's always BIG_ENDIAN by default.
+<krasserm> This is an arbitrary choice to reserve space for some special-purpose keys.
+<krasserm> Exactly
+<krasserm> Will change it
+<bantonsson> I think that the word _delete_ implies that it actually will be deleted from the journal. Is `Ignore` a bad word? Maybe I'm just splitting hairs.
+<krasserm> As long as we document that this a logical deletion, I think `delete` is fine. It also depends if we're going to allow un-delete operations in the future. Need to think more about it and come back to it with a separate ticket ... 
+<krasserm> > ... can Processor actors use the stash they have?
+
+I meanwhile have a [solution](https://github.com/eligosource/akka/commit/0bd66c0005aed040aa38f327cd90e31e68def296) implemented for that which will be part of the next pull request update. It
+
+- uses a special-purpose processor-internal stash ( *processor stash* ) that is isolated from `theStash` maintained by `akka.actor.Stash` ( *user stash* ). I didn't implement 'named' stashes as mentioned before.
+- unstashes all messages from the user stash on restart **excluding** messages of type `Replayed` and `Written` because they will be re-delivered by the journal (as `Replayed` messages). This is the proper way of avoiding duplicates during restart (mentioned in a previous comment). Checking sequence numbers to avoid duplicates doesn't work because `stash()`/`unstashAll()` re-orders the sequence.
+- also supports cases where a processor is recovered (restarted) between `stash()` and `unstashAll()` calls. [Another commit](https://github.com/eligosource/akka/commit/40508ef1f563328742e2b7388cd9795128c14f1f) (that adds support for re-running recovery when recovery fails) also verifies that several recoveries (restarts) between `stash()` and `unstashAll()` calls are supported.
+
+<krasserm> > ... move the `preRestart` and `postRestart` implementations to `Processor` and make them `final`.
+
+Making them final limits composition with existing traits. For example making `postStop()` final on `Processor` prevents mixing in the FSM trait. I propose to leave the `preStart`, `postStop`, `preRestart` and `postRestart` non-final but still recommend overriding `preStartProcessor`, `postStopProcessor`, `preRestartProcessor` and `postRestartProcessor` if possible.
+<patriknw> We decided that @bantonsson will evaluate the alternatives for aroundReceive and perform the benchmarks this week
+<patriknw> `++ experimentalSettings`
+<rkuhn> make this little function statically available, e.g. on the Actor object
+<rkuhn> this reads a bit too generic: should we rename `Message` to `Persisted`?
+<krasserm> `Persistent`?
+<rkuhn> this means that Processors cannot reasonably opt out of having their children terminated during a restart
+<krasserm> And rename `Processor` to `PersistentActor`?
+<rkuhn> Staying in the metaphor, it would be more like “registered mail” instead of a plain “letter”. Processor is fine, I think, but Message is too generic.
+<rkuhn> can we enforce this and give good error messages?
+<krasserm> I did enforce that in Scala (using implicit current message), couldn't find a way how to enforce that in Java. 
+<rkuhn> it would be a runtime check: Message.create() sets something to `false` which is set to `true` while persisting it (for example)
+<rkuhn> arguments used only in the constructor are prefixed with an underscore in Akka: `_channelId`
+<rkuhn> we usually put the guard before the arrow ;-)
+<krasserm> Message.create() is not necessarily related to persisting it (when sending it over a channel). But maybe I'm not getting your point here. Can you please elaborate?
+<krasserm> The situation here is comparable to forwarding in Scala and Java: `ref forward msg` where the context is implicitly set
+vs `ref.forward(msg, getContext())` where the user is responsible for passing `getContext()`as 2nd argument.
+<guersam> `akka-persistence_@binVersion@`?
+<krasserm> of course, thanks!
+<krasserm> After the arrow is correct. Messages retained by the channel should not go to `deadLetters`, and most replayed messages will be retained on every replay.
+<rkuhn> Yes, that was clear; I was commenting only on the coding style: either use a guard to the left of the arrow or place the conditional on the next line, that makes it easier to see the difference between the two (which is exactly what you just explained).
+<rkuhn> I guess my question boils down to: “It is not allowed” means that something will go wrong if you try it nevertheless. What exactly will go wrong, and can we give a good error message in this case?
+<rkuhn> nice little actors :+1: only one small nitpick: `destination` pairs better with `source` than with `sdr`
+<rkuhn> Agreed on the preliminary nature, but Patrik is right in that this pattern `(ActorRefFactory => ActorRef)` should not be used, just create Props instead; of course people can point the gun at their feet and pull the trigger, but we should not show them how to do that.
+<rkuhn> since the `sender` is already part of the request, why not let it travel full circle? I have not read where this is used, but I can imagine that that would allow users of this interface to keep less state
+<rkuhn> same here
+<rkuhn> the journal might later want to live somewhere below `/system/persistence` instead of `/user`
+<rkuhn> please add a link to UntypedProcessor so that Java users find it quicker, and copy/adapt the doc to make a nice javadoc out of it as well
+<krasserm> The `sender` parameter will become necessary later when I'm going to implement reliable channels. Should I find another way to implement that, I'll switch back to the sender that is part of the request.
+<krasserm> note taken
+<rkuhn> this line needs to go outside the `withBatch`
+<krasserm> What's the advantage?
+<krasserm> This would change the impl to something like 
+
+    val sm = withBatch { batch ⇒
+      val ps = if (s.isInstanceOf[PromiseActorRef]) context.system.deadLetters else s
+      val sm = pm.copy(sender = Serialization.serializedActorPath(ps))
+      val pid = numericId(sm.processorId)
+      batch.put ...
+      batch.put ...
+      sm
+    }
+    p.tell(Written(sm), s)
+
+What do I gain?
+<rkuhn> My assumptions about LevelDB API might be incorrect, but it looks like the gain is that the confirmation is now sent after the write has completed, not before.
+<krasserm> Doh, of course :)
+<rkuhn> yes, I’ve seen that you use the implicit sender now instead of an explicit one; I remarked here mainly because of the visual inconsistency between Write and Written (i.e. either use the implicit sender in both cases or not at all; I tend to favor the latter because it is harder to get wrong)

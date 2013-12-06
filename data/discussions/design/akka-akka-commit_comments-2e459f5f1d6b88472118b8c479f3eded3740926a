@@ -1,0 +1,140 @@
+<jboner> Oops. :-)
+<viktorklang> ;)
+<rkuhn> yup, my thought exactly
+<oschulz> A bit OT, but: Would it be possible to make actor suspend / resume accessible in the public API (ActorRef)? I think that would be very useful in some scenarios (e.g. making an actor wait for something without blocking a thread). Or is this already possible in some way?
+<viktorklang> Definitely not from the outside, and on the inside it doesn't make sense
+since it can't resume itself.
+
+What's the use-case?
+
+Cheers,
+V
+On Jun 21, 2012 11:30 AM, "oschulz" <
+reply@reply.github.com>
+wrote:
+
+> A bit OT, but: Would it be possible to make actor suspend / resume
+> accessible in the public API (ActorRef)? I think that would be very useful
+> in some scenarios (e.g. making an actor wait for something without blocking
+> a thread). Or is this already possible in some way?
+>
+> ---
+> Reply to this email directly or view it on GitHub:
+>
+> https://github.com/akka/akka/commit/2e459f5f1d6b88472118b8c479f3eded3740926a#commitcomment-1486334
+>
+<oschulz> Resume would have to be possible from outside, of course. The use case I was thinking of was:
+An actor gets a message, instructing it to do some long-running operation. The actor spaws a child (or children) to do all that stuff, but until it's finished (for example some real-world interaction), the primary actor should not react to new commands. Of course this could also be solved with message-queues. It's just that when I saw this pull-request, I got the idea that an actor suspending itself and beeing resumed by the child(ren) doing the actual work would be an easy and elegant solution for such cases (blocking an actor until something is done).
+<viktorklang> On Thu, Jun 21, 2012 at 2:14 PM, oschulz <
+reply@reply.github.com
+> wrote:
+
+> Resume would have to be possible from outside, of course. The use case I
+> was thinking of was:
+> An actor gets a message, instructing it to do some long-running operation.
+> The actor spaws a child (or children) to do all that stuff, but until it's
+> finished (for example some real-world interaction), the primary actor
+> should not react to new commands.
+
+
+What if the child dies? Or the message never reaches the child? What if
+someone is sending messages at a high rate so blocking for 10 seconds will
+actually put millions of messages in the mailbox, potentially putting the
+system in an OOME situation?
+
+
+> Of course this could also be solved with message-queues. It's just that
+> when I saw this pull-request, I got the idea that an actor suspending
+> itself and beeing resumed by the child(ren) doing the actual work would be
+> an easy and elegant solution for such cases (blocking an actor until
+> something is done).
+>
+
+In this case just use "become" + Stash and you can accomplish the same
+thing, but without the dangers of suspend/resume.
+
+Cheers,
+√
+
+
+>
+> ---
+> Reply to this email directly or view it on GitHub:
+>
+> https://github.com/akka/akka/commit/2e459f5f1d6b88472118b8c479f3eded3740926a#commitcomment-1486891
+>
+
+
+
+-- 
+Viktor Klang
+
+Akka Tech Lead
+Typesafe <http://www.typesafe.com/> - The software stack for applications
+that scale
+
+Twitter: @viktorklang
+<oschulz> > What if the child dies?
+The child doing the actual work could be watched by an intermediate supervisor, which would handle this case,  i guess.
+
+> In this case just use "become" + Stash and you can accomplish the same
+Sure - I'm not saying it's necessary, I was just wondering if it might be an easy alternative. 
+
+> What if someone is sending messages at a high rate?
+That also applies to "become" + Stash, I guess? Can one defend againt that using a bounded mailbox?
+
+<viktorklang> On Thu, Jun 21, 2012 at 5:00 PM, oschulz <
+reply@reply.github.com
+> wrote:
+
+> > What if the child dies?
+> The child doing the actual work could be watched by an intermediate
+> supervisor, which would handle this case,  i guess.
+>
+
+Suspension of a parent implies suspension of children, as suspend/resume is
+used exclusively for supervision-management.
+
+
+>
+> > In this case just use "become" + Stash and you can accomplish the same
+> Sure - I'm not saying it's necessary, I was just wondering if it might be
+> an easy alternative.
+>
+
+I'm fairly sure that there's no easy alternative, however, it is a topic
+worth exploring more. But handing out suspend/resume as end-user API isn't
+going to cut it.
+
+
+>
+> > What if someone is sending messages at a high rate?
+> That also applies to "become" + Stash, I guess? Can one defend againt that
+> using a bounded mailbox?
+>
+
+Yup, and it will lead to messages getting dropped, which may or may not be
+what you want.
+
+
+>
+> ---
+> Reply to this email directly or view it on GitHub:
+>
+> https://github.com/akka/akka/commit/2e459f5f1d6b88472118b8c479f3eded3740926a#commitcomment-1487693
+>
+
+
+
+-- 
+Viktor Klang
+
+Akka Tech Lead
+Typesafe <http://www.typesafe.com/> - The software stack for applications
+that scale
+
+Twitter: @viktorklang
+<oschulz> > Suspension of a parent implies suspension of children
+
+Uhm, yes, this was originally about hierarchial suspension, wasn't it? There's the flaw in my plan ... just forget everything I said - sorry! :-)
+
