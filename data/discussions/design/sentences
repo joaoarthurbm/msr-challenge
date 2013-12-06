@@ -1,3 +1,94 @@
+Sorry guys. I expected it to be in akka-remote module.,design
+akka module should allow it.,design
+inconsistent module descriptor file found.,general
+Are we packaging the cluster module?,general
+If no extra dependencies are needed can this stay here or do you think extra module is right in any case?,design
+But if the Address is the same as our listen address then isLocal should return true.,general
+You may, in your class extending ActorSystemActivator override the getActorSystemConfig.,design
+The annotation is also a good indication that this class must be handled with care when doing changes.,design
+If we make Actor an abstract base class we will break literally every user code base that exists.,design
+Should this class be public?,design
+can you change `seenBy` and `getSeenBy` to `private[akka]`. That should only be internal api.,design
+The irony is that it _will_ blow up if the default case is removed.,general
+you can still create a ticket if you fear that you would otherwise forget it.,general
+if the receiving actor fails while processing the message or is already terminated.,general
+We could store things in a WeakHashMap to not leak classes & class loaders.,design
+That is handled by the caller.,design
+This class has no access to settings.,design
+the `Send` class here is intentionally mutable.,design
+we want to work with a single instance until its buffer has been encrypted completely.,design
+a special byte array serializer could be useful for other things.,general
+Right. Since it is currently fixed size anyway an array would fit.,general
+The loop is one chunk of work and has its own commit. it's one fix for all the issues previously discussed.,general
+would it make sense to abort the loop if too many `discarded`?,general
+What happens if we loop around with the default buffer?,general
+how do we know that this loop has an end?,general
+the endless loop is important to address.,general
+Creating a set in a tight loop just to check for a condition?,general
+do you prefer to do the removal inside the above loop.,general
+you don’t need to get the loop on the same stack.,general
+in a loop with the timeout value set according to the deadline and current time.,general
+go through deprecation and removal of a feature introduced in the previous release.,general
+Thx for this feature - we'll try to use it.,general
+I'll leave that to the excellent authors of this amazing feature.,general
+In our eyes we are feature complete with an "ok" initial test coverage.,general
+the feature is based on maven repo and loads.,general
+So Maven structure leads us to deploy the feature and other bundles on the local maven repository.,general
+high time that we nuke that feature and its test.,general
+Given how small this feature is code-wise I’m certain that we’re doing things right. Great work.,general
+I also fixed a problem with Johannes' latest "half-closed" feature that only surfaced under OS/X and cleaned up some small stuff.,general
+Based on the recent comments. it looks like there will be another (bigger) round of changes + review.,general
+I think it's feature complete.,general
+The select feature is in fact provided in the form of Stash.,general
+I'm still making up a case for the isEmpty feature and maybe if you could consider the microbenchmark below.,general
+this is where the feature will be completely disabled when configured.,general
+Yes it should. otherwise it will be surprising that the feature doesn't work. We want least surprise.,general
+Why is MixMetricsSelector both a case class and a case object and the case object neither extends the class nor returns a cached default value.,design
+created a separate class for SystemGuardian.,design
+Should we put this in the base class so we don't need to override it and type the same thing every test?,design
+I'll refactor this class to have a protected strategy method that people can override to achieve the same goal.,design
+this should be public.,design
+Exposing the class was the whole point of the refactoring.,design
+Perhaps the solution is to not be able to request a size at all, the size you'll get is the size in the config.,general
+The only use of the buffer is to gain performance and a smaller buffer should not affect the semantics of your program.,general
+And what are the performance implications?,general
+I think we should allocate an array instead. then the adds and removes do not incur any allocations.,general
+Might just be better of with an array and linear find.,general
+Even better: sorted array and binary search.,general
+that's a costly thing to do. the byte array will become a Vector.,general
+If performance is important here I think I'd recommend not using options and use a cached empty byte array as an EOF marker.,general
+for performance you might want to hoist "name+"."" out of the guard.,general
+If performance is important here I think I'd recommend not using options.,general
+This will do a lookup in the system-internal map for every invocation, is this intentional?
+is the mutable map needed for performance?,general
+something that takes a key-value map for things to be replaces with something,general
+I'll have another look at this. You don't want to go to the map every time you send a message.,general
+Not even sure if Scala vector and map are that usable from Java.,general
+second parameter list not used in equals,general
+The docs does not say anything about the mutability of the list returned by this method.,general
+Here the double param list becomes both very ugly and unintutive.,general
+When I read "Acknowledgements" I expected a list of names.,general
+Avoid this branching here by concating the empty list.,general
+we have a convention to use square brackets around variables,general
+A “closure” is a lambda expression with free variables which are bound to the enclosing lexical context,general
+Don't forget to remove the unused shift variable at line 513 (or wherever it ended up now),general
+Should we put this in the base class so we don't need to override it and type the same thing every test?,design
+We can still override if needed.,design
+What if a null is passed in here last?,general
+Shouldn't we have a Queue that records all updates or similar?,design
+members will never be null,general
+I have fixed this, for the cluster tests, initialParticipants are by default same as number of registered roles,general
+yup, looking good,general
+LGETM (“good enough”) will properly review later,general
+Fixed review comments.,general 
+Merging.,general
+StatsService ruining the day, can we fix it?,general
+PLS REBUILD ALL,general
+LGTM!,general
+LGTM!!!,general
+LGTM.,general
+LGTM,general
++1,general
 This is not supposed to be used externally.,design
 it should use an ExecutorServiceConfigurator so it can be managed externally.,design
 this class is an internal structure.,design
