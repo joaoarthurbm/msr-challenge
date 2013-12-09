@@ -1,3 +1,9 @@
+This is great.,general
+I like it.,general
+I liked it.,general
+Cool.,general
+Nice.,general
+Great.,general
 I expected it to be in akka-remote module.,design
 akka module should allow it.,design
 inconsistent module descriptor file found.,general
@@ -8,19 +14,19 @@ You may in your class extending ActorSystemActivator override the getActorSystem
 The annotation is also a good indication that this class must be handled with care when doing changes.,design
 If we make Actor an abstract base class we will break literally every user code base that exists.,design
 Should this class be public?,design
-can you change `seenBy` and `getSeenBy` to `private[akka]`. That should only be internal api.,design
+can you change seenBy and getSeenBy to private[akka]. That should only be internal api.,design
 The irony is that it _will_ blow up if the default case is removed.,general
 you can still create a ticket if you fear that you would otherwise forget it.,general
 if the receiving actor fails while processing the message or is already terminated.,general
 We could store things in a WeakHashMap to not leak classes & class loaders.,design
 That is handled by the caller.,design
 This class has no access to settings.,design
-the `Send` class here is intentionally mutable.,design
+the Send class here is intentionally mutable.,design
 we want to work with a single instance until its buffer has been encrypted completely.,design
 a special byte array serializer could be useful for other things.,general
 Right. Since it is currently fixed size anyway an array would fit.,general
 The loop is one chunk of work and has its own commit. it's one fix for all the issues previously discussed.,general
-would it make sense to abort the loop if too many `discarded`?,general
+would it make sense to abort the loop if too many discarded?,general
 What happens if we loop around with the default buffer?,general
 how do we know that this loop has an end?,general
 the endless loop is important to address.,general
@@ -146,15 +152,15 @@ api type. Perhaps this is just internal.,design
 this should go inside RemoteWatcher.props.,design
 places that use props factory method pattern.,design
 it must be better to define all props in the props factory.,design
-it should be `getContext().actorOf`.,design
+it should be getContext().actorOf.,design
 these should be internal API.,design
 It should then be marked as internal API.,design
 actor extending UntypedProcessor.,design
-`Message` creation inside and outside a processor.,design
-The reason for `private[persistence]` is that it is used by the `RecoverOnRestart` trait.,design
-will become either INTERNAL API or `private`.,design
-What about moving the above `preStart` implementation to `Processor`?,design
-processors can only override `preRestartProcessor`,design
+Message creation inside and outside a processor.,design
+The reason for private[persistence] is that it is used by the RecoverOnRestart trait.,design
+will become either INTERNAL API or private.,design
+What about moving the above preStart implementation to Processor?,design
+processors can only override preRestartProcessor,design
 we could move the preRestart and postRestart implementations to Processor.,design
 concrete processors should override preRestartProcessor and postRestartProcessor.,design
 using an actor context in the wrong place.,design
