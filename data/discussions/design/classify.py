@@ -1,10 +1,13 @@
 from textblob import *
-from textblob.classifiers import NaiveBayesClassifier
+from textblob.classifiers import DecisionTreeClassifier
 
-cl = NaiveBayesClassifier("sentences.csv", format="csv")
+cl = DecisionTreeClassifier("sentences.csv", format="csv")
 
 for line in open('comments.data','r'):
 	blob = TextBlob(line)
-	for sentence in blob.sentences:
-		print sentence,cl.classify(sentence)
-
+	
+	try:
+		for sentence in blob.sentences:
+			print sentence,cl.classify(sentence)
+	except ValueError:
+		print "Line not parsed: ",line
