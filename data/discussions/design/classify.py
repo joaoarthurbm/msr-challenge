@@ -7,7 +7,7 @@ for line in open('comments.data','r'):
 	blob = TextBlob(line)
 	
 	try:
-		for sentence in blob.sentences:
-			print sentence,cl.classify(sentence)
+		for sentence in blob.noun_phrases:
+			blob.classify
 	except ValueError:
 		print "Line not parsed: ",line
