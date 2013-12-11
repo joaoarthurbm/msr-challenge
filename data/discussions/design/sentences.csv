@@ -14,146 +14,206 @@ The two other constructors have been added to allow Java users to use the ActorS
 should this be public;patriknw;akka-akka-pull_request_comments-1368;design
 yes this should be public exposing the class was the whole point of the refactoring;rkuhn;akka-akka-pull_request_comments-1368;design
 Should we put this in the base class so we don't need to override it and type the same thing every test we can still override it;jboner;akka-akka-pull_request_comments-523;design 
+This is not supposed to be used externally but it is not clearly marked as such;rkuhn;akka-akka-issue_comments-389;design
+That method signature change is package protected so it's not reachable;viktorklang;akka-akka-issue_comments-389;design
+As we talked about it should use an ExecutorServiceConfigurator so it can be managed externally;viktorklang;akka-akka-pull_request_comments-1027;design
+this class is an internal structure EndpointRegistry This is only used by EndpointManager who does the check and who gets the Quarantine command from the external worlds;drewhk;akka-akka-pull_request_comments-1352;design
+True will make public again On the other hand we have other places which require external implementors to put their code in the akka package;rkuhn;akka-akka-pull_request_comments-316;design
+No this is cheating by using low-level API that shouldn't even be exposed;jboner;akka-akka-pull_request_comments-132;design
+Since the SelectionHandler ref is not exposed to the user the only ones who can potentially call assign a watch are ourselves control for what actors we are seeing Terminated events which are only children;sirthias;akka-akka-pull_request_comments-1406;design
+Method is exposed to subclasses to be able to implement custom routers based on mailbox and actor internal state;viktorklang;akka-akka-pull_request_comments-209;design
+is not existenceConfirmed also an implementation detail that should not be exposed to users;patriknw;akka-akka-pull_request_comments-749;design
+Would it be possible to make actor accessible in the public API;oschulz;akka-akka-commit_comments-2e459f5f1d6b88472118b8c479f3eded3740926a;design
+I agree to this as the most important reason It gives us freedom to evolve the api without breaking user code;patriknw;akka-akka-commit_comments-3204269f6a0fb2aec94595f504e2c423d9344b5c;design
+we can add new methods to Context without accidentally breaking peoples Actors;viktorklang;akka-akka-commit_comments-3204269f6a0fb2aec94595f504e2c423d9344b5c;design
+Why do we want to make the user type more by removing all the methods from Actor;jboner;akka-akka-commit_comments-3204269f6a0fb2aec94595f504e2c423d9344b5c;design
+Why does it return a RoutedActorRef leaking implementation detail;viktorklang;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
+Should this class be public;viktorklang;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
+Should probably use composition instead of inheritance;viktorklang;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
+UnsupportedActorRef already implements ScalaActorRef;viktorklang;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
+Is this a public method intended for end-user usage;viktorklang;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
+RoutedActorRef is going to be a part of the API just like the LocalActorRef where you can do Router specific stuff on like adding removing;pveentjer;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
+Why does this class extend ScalaActorRef;viktorklang;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
+But to do a redesign on this part I do not consider a part of this already to big task we both agree upon that the current approach is not very extensible;pveentjer;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
+Should this class be public;pveentjer;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
+If it should be part of the Api like the LocalActorRef or the RemoteActorRef it should But I do not like making abstract classes part of the API instead of interfaces;pveentjer;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
+This is how it is implemented in the ClusteredActorRef the design of the RoutedActorRef was based on;pveentjer;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
+Can not that be solved with overloading;viktorklang;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
+Not through these methods I suggested that the current design is not very extensible for this reason but that is how it was modelled with the ClusterActorRef based on It certainly isn not the way how I would have modelled it;viktorklang;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
+I'm still unsure if we should expose implementation details or not we should discuss it;viktorklang;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
+think the doc tests should be updated to not use isTerminated;patriknw;akka-akka-issue_comments-1290;design
+I still think the doc tests should be updated to not use isTerminated since that is user API;patriknw;akka-akka-issue_comments-1290;design
+One reason to not use Akka actors could be that the Akka actors may be dependent on the Index class If the test class is dependent on Akka actors;kjellwinblad;akka-akka-pull_request_comments-94;design
+Any internal usages that should be updated;patriknw;akka-akka-issue_comments-1290;design
+I think the deprecation and the refactoring should be kept separate as one is changing user API and one is internal implementaiton details;viktorklang;akka-akka-issue_comments-1290;design
+Create another ticket if you do not want to change the internals;patriknw;akka-akka-issue_comments-1290;design
+I agree that this shouldn't be exposed at all it still best way to avoid reinventing the wheel is to use the BatchingExecutor;viktorklang;akka-akka-pull_request_comments-1097;design
+is SchedulerException ever exposed to users Make it private;patriknw;akka-akka-pull_request_comments-1027;design
+The events need to be private and should not be exposed They are for internal use only Users can use awaitActivation methods from Activation;piotrga;akka-akka-issue_comments-377;design
+I will make it private to not confuse users It is just that other internal events are published in akka as public classes;RayRoestenburg;akka-akka-issue_comments-377;design
+ok if I make it private;patriknw;akka-akka-pull_request_comments-749;design
+it does not have to but it is only used here close connection to the binarySearch I can make it private if you prefer that;patriknw;akka-akka-pull_request_comments-858;design
+No I mean it is in the camel.internal package and is private, since it is for the ActivationTracker, put in the ActivationTracer companion and make it private;viktorklang;akka-akka-pull_request_comments-893;design
+Might be dangerous in the wrong hands Feel free to remove it;jboner;akka-akka-commit_comments-b42417a2783d08ada468df81e34e89f5794b0413;design
+We discussed it some time ago And we reached the agreement that it is dangerous as they are internals and we are not prepared to expose them as they are exposing the internals of implementation and break encapsulation;piotrga;akka-akka-issue_comments-377;design
+Seems a bit dangerous to me it can go in for now but in the future it might make sense to think about a cleaner way of FSM composition;drewhk;akka-akka-issue_comments-849;design
+This is the most dangerous initialization pattern presence of circular dependencies;drewhk;akka-akka-pull_request_comments-1163;design
+The events need to be private and should not be exposed They are for internal use only Users can use awaitActivation methods from Activation;piotrga;akka-akka-issue_comments-377;design
+I have made them internal again;RayRoestenburg;akka-akka-issue_comments-377;design
+minimize exposure;RayRoestenburg;akka-akka-issue_comments-377;design
+This whole structure is specific to this actor and should not be used anywhere else;drewhk;akka-akka-pull_request_comments-1028;design
+It is not the job of this structure to enforce that it makes sense to throw an exception in that case;drewhk;akka-akka-pull_request_comments-1028;design
+this message as well as all others underneath INTERNAL should not be publicly visible;sirthias;akka-akka-pull_request_comments-1030;design
+This should not be here this is specific to the TestTransport;drewhk;akka-akka-pull_request_comments-1232;design
+Can we solve all those in some more elegant way some implicit conversion that is only for internal use;patriknw;akka-akka-pull_request_comments-1278;design
+Since it seems to be used mainly for sending system message I think it's good enough if we make an internal utility method;viktorklang;akka-akka-pull_request_comments-1278;design
+I would be surprised if this is the way to create class RoutedActorRefs;viktorklang;akka-akka-pull_request_comments-132;design
+No this is cheating by using low-level API that shouldn't even be exposed;jboner;akka-akka-pull_request_comments-132;design
+immutable IndexedSeq as api type Perhaps this is just internal;patriknw;akka-akka-pull_request_comments-1351;design
+this should go inside RemoteWatcher that use props factory method pattern;patriknw;akka-akka-pull_request_comments-1500;design
+well for these internal actors that are not intended to be remote deployed it must be better to define all props in the props factory;patriknw;akka-akka-pull_request_comments-1500;design
+I think a proper fix is to be able to pass in a ClassLoader to createActorSystem it should not default to class this overrides Thread.getContextClassloader;viktorklang;akka-akka-issue_comments-875;design
+should we make it to make it consumable for java otherwise these should be INTERNAL API;patriknw;akka-akka-pull_request_comments-1700;design
+It should then be marked as INTERNAL API it is public from java;patriknw;akka-akka-pull_request_comments-1700;design
+The reason for private is that it is used by the RecoverOnRestart class will become either INTERNAL API or private;krasserm;akka-akka-pull_request_comments-1700;design
+What about moving the above preStart implementation to Processor and make it final so that concrete processors can only override preRestartProcessor;krasserm;akka-akka-pull_request_comments-1700;design
+How about moving these into akka util;rkuhn;akka-akka-pull_request_comments-426;design
+concrete processors should override preRestartProcessor and postRestartProcessor if needed;krasserm;akka-akka-pull_request_comments-1700;desig
+Is there a reason for exposing CompactByteString and ContByteString as return types of the public api should not be a concern to the user just like users should not need to deal with Map1 A user should never be using the CompactByteString object as the ByteString object should be creating compact ByteStrings but the abstract ByteString class should just be returning ByteString;derekjw;akka-akka-issue_comments-462;design
+I wanted to ByteStringCompact next to ByteString1 and ByteStrings to keep the three implementations together and so that ByteStringCompact has access to things which are private though currently the critical stuff is all private;oschulz;akka-akka-pull_request_comments-402;design
+Should this create the Props only Passing ActorRefFactory if actor context and potentially using it in the wrong place outside the actor;patriknw;akka-akka-pull_request_comments-1700;design
+I understand the issue of using an actor context in the wrong place but can you prevent that at all an actor could reply the context to a sender the context is then used in the onSuccess callback;krasserm;akka-akka-pull_request_comments-1700;design
+currentMessage won't be called if users follow the msg approach discussed It will be called only if users create new outbound messages via This could be another good reason to recommend the msg approach inside processors;krasserm;akka-akka-pull_request_comments-1700;design
+There should also be a section about the actual ask change move from ActorRef to pattern;patriknw;akka-akka-pull_request_comments-241;design
+think some more things are needed in the migration kit Add the needed implicit conversions in OldActor so that existing code works inside actors;patriknw;akka-akka-pull_request_comments-241;design
+Add needed implicit conversion in this package scala file so that existing code works outside actors;patriknw;akka-akka-pull_request_comments-241;design
+Document as internal and make final;viktorklang;akka-akka-pull_request_comments-241;design
+We can not really get away from exposing Node if we move it into a field instead but the problem is that there is no getAndSet on Unsafe so it can not use LOCK So I will move in isEmpty into AbstractNodeQueue and add count;viktorklang;akka-akka-pull_request_comments-1283;design
+I would definitely recommend making DeadLetterActorRef a subtype extend of EmptyLocalActorRef and remove DeadLetterActorRefLike;viktorklang;akka-akka-pull_request_comments-241;design
+why is this class public and not documented guessing this should be private and documented as internal users will be able to use private;viktorklang;akka-akka-pull_request_comments-241;design
+any risk with that we can not change this one would it be possible to move to context;patriknw;akka-akka-pull_request_comments-456;design
+protected or prevent subclassing by user code;patriknw;akka-akka-pull_request_comments-456;design
+I think this class can be private;patriknw;akka-akka-pull_request_comments-456;design
+ActorRefProvider does not expose a reference to its ActorSystem which is a good idea because of initialization order;rkuhn;akka-akka-pull_request_comments-456;design
+A factory to create MessageQueues for an optionally provided ActorContext;patriknw;akka-akka-pull_request_comments-456;design
+protected is weaker than protected so what are you saying Subclassing applies to ActorSystem or ActorCell;rkuhn;akka-akka-pull_request_comments-456;design
+I do not see any value in hiding it The rest of the ActorPath handling is also not private;rkuhn;akka-akka-pull_request_comments-456;design
+So you do not want people to implement MessageDispatcher;rkuhn;akka-akka-pull_request_comments-456;design
+it probably makes more sense to mark as private packages these classes provide the most convenient way for passing along the correct;gertv;akka-akka-pull_request_comments-460;design
+eaio will be removed I have added a ticket to move the things from org.jboss.netty.akka.util package to akka.util package;viktorklang;akka-akka-pull_request_comments-460;design
+config package will become an explicit dependency as well instead of an embedded one clean up;viktorklang;akka-akka-pull_request_comments-460;design
+We will make them package protected;viktorklang;akka-akka-pull_request_comments-460;design
+Are the things from netty package only used internally or should they be exposed in the API If just internal you could consider to put them into akka util package;hseeberger;akka-akka-pull_request_comments-460;design
+I suggest to just wrap in a RemoteTransportException and rethrow and let the layer above decide if it should be logged or not;viktorklang;akka-akka-pull_request_comments-476;design
+Just wrap in a RemoteTransportException and let the caller decide if it should be logged or not;viktorklang;akka-akka-pull_request_comments-476;design
+This should be private and be documented as internal api;viktorklang;akka-akka-pull_request_comments-476;design
+Should not getChild be only in UntypedActorContext;patriknw;akka-akka-pull_request_comments-639;design
+ActorCell class must implement both and ActorContext does not expose the Java variant;rkuhn;akka-akka-pull_request_comments-639;design
+This should be pulled out of the trait since it is a constant put move in some object;viktorklang;akka-akka-pull_request_comments-681;design
+These should be in a companion object like usual;viktorklang;akka-akka-pull_request_comments-681;design
+Should not this be in a companion object;drewhk;akka-akka-pull_request_comments-993;design
+If the extension you have a reference to ExtendedActorSystem;viktorklang;akka-akka-pull_request_comments-681;design
+LoggingAdapter does not belong in akka package class If you want to log directly then you should use that api directly;patriknw;akka-akka-pull_request_comments-913;design
+it allows the Akka Logging API to be used outside of Actor systems;fommil;akka-akka-pull_request_comments-913;design
+An advantage is that it does not require any dependencies;patriknw;akka-akka-pull_request_comments-913;design
+Instead of directly calling into the ConcurrentSocketActor through methods like connect bind you should send messages to the actor;viktorklang;akka-akka-pull_request_comments-92;design
+you are calling out to the methods of the Actor which is a violation of the ActorModel model why not put the connect methods inside the funciton they used internally in the actor;viktorklang;akka-akka-pull_request_comments-92;design
+they are only invoked from select and should not be invoked from any other site either inside or outside the actor;kro;akka-akka-pull_request_comments-92;design
+so move them into the select function so that they are only reachable from within it;viktorklang;akka-akka-pull_request_comments-92;design
+I think it is better to create the actor inside the newSocket method and pass the supervisor into it;viktorklang;akka-akka-pull_request_comments-92;design
+this method is only ever used in receiveFrames you might as well move the method definition into receiveFrames;viktorklang;akka-akka-pull_request_comments-92;design
+will this be exposed in some way in Spray to serve static content;drewhk;akka-akka-issue_comments-1321;design
+do we need to expose this in ActorRefProvider interface;patriknw;akka-akka-commit_comments-9c762dec2062f7a651363a6cc90d8105126d8f35;design
+LGTM;rkuhn;akka-akka-issue_comments-990;general
+LGTM;patriknw;akka-akka-issue_comments-991;general
+LGTM;rkuhn;akka-akka-issue_comments-993;general
+Nice Would the code be clearer if the run-method would be named differently;viktorklang;akka-akka-pull_request_comments-92;general
+Nice catch;viktorklang;akka-akka-pull_request_comments-1030;general
+Nice one;drewhk;akka-akka-pull_request_comments-1030;general
+Nice catch If we leave it a weak limit then we should document it;drewhk;akka-akka-pull_request_comments-1030;general
+Nice catch;viktorklang;akka-akka-pull_request_comments-456;general
+I can rename it to initialiseAndGetSSLHandler or more verbose;dev10;akka-akka-pull_request_comments-476;general
+Avoid this branching here by concating the empty list in case it is not defined and a List with the one item if defined;viktorklang;akka-akka-pull_request_comments-476;general
+I would not check for nulls here;viktorklang;akka-akka-pull_request_comments-476;general
+I would probably escalate this as this is a serious security issue;viktorklang;akka-akka-pull_request_comments-476;general
+I do not really like methods with innocent sounding names like getX that do a whole lot more than just getting something;viktorklang;akka-akka-pull_request_comments-476;general
+Any suggestions as how to improve on this;viktorklang;akka-akka-pull_request_comments-476;general
+Good rename;drewhk;akka-akka-pull_request_comments-1351;general
+Will rename to Settings;krasserm;akka-akka-pull_request_comments-1700;general
+this reads a bit too generic should we rename Message to Persisted;rkuhn;akka-akka-pull_request_comments-1700;general
+Weird if the test passes;viktorklang;akka-akka-pull_request_comments-681;general
+this test name suggests more than the test actually verifies;rkuhn;akka-akka-pull_request_comments-1030;general
+this is a neat test harness;rkuhn;akka-akka-pull_request_comments-1030;general
+We should enumerate which tests we need;rkuhn;akka-akka-pull_request_comments-1030;general
+This may be the cause of the instabilities we have seen with the tests We have already got rid of most of the isTerminated but this instance was forgotten;jrudolph;akka-akka-pull_request_comments-1030;general
+without it this test fails;patriknw;akka-akka-pull_request_comments-1232;general
+Let us verify that again but I think it had something with test protocol not registered which is a good error to log;patriknw;akka-akka-pull_request_comments-1232;general
+then I misunderstood the error message I will revisit that and probably have to delete that test or do you have a suggestion of how to test;patriknw;akka-akka-pull_request_comments-1232;general
+has it been tested on linux;patriknw;akka-akka-pull_request_comments-476;general
+first run on jenkins was successful which does not mean that it is fixed but anyway a good start;patriknw;akka-akka-pull_request_comments-940;general
+I have run the test locally hundreds and hundreds of times without being able to reproduce it;viktorklang;akka-akka-pull_request_comments-951;general
+Added a test that will start failing when this bug is fixed;viktorklang;akka-akka-pull_request_comments-718;general
+we never loop around when order becomes Concurrent so it can not really be that here;bantonsson;akka-akka-commit_comments-61e47c115da8cfbcb1c2abfda37752cb436fd7eb;general
+That is the beauty with actor logging you do not need to get the loop on the same stack;rkuhn;akka-akka-issue_comments-332;general
+What about returning 0 here to handle potentially enqueued commands It is not immediately clear to me that this can not be an infinite loop in the worst case;rkuhn;akka-akka-pull_request_comments-1355;general
 
------
 
 
-Shouldn't we have a Queue that records all updates or similar?,design
-members will never be null,general
-I have fixed this for the cluster tests initialParticipants are by default same as number of registered roles,general
-yup looking good,general
-LGETM (“good enough”) will properly review later,general
-Fixed review comments.,general 
-Merging.,general
-StatsService ruining the day can we fix it?,general
-PLS REBUILD ALL,general
-LGTM!,general
-LGTM!!!,general
-LGTM.,general
-Nice,general
-good,general
-LGTM,general
-+1,general
-This is not supposed to be used externally.,design
-it should use an ExecutorServiceConfigurator so it can be managed externally.,design
-this class is an internal structure.,design
-True will make public again. On the other hand we have other places which require external implementors.,design
-No this is cheating by using low-level API that shouldn't even be exposed.,design
-Since the SelectionHandler ref is not exposed.,design
-Method is exposed to subclasses to be able to implement custom.,design
-an implementation detail that shouldn't be exposed to users.,design
-would it be possible to make actor accessible in the public API?,design
-we can add new methods to Context without accidentally breaking peoples Actors evolve the api without breaking user code.,design
-Why does it return a leaking implementation detail?,design
-Should probably use composition instead of inheritance.,design
-Should this class be public?,design
-UnsupportedActorRef already implements ScalaActorRef.,design
-Is this a public method?,design
-Why does this extend ScalaActorRef?,design
-I think that RoutedActorRef is going to be a part of the API.,design
-to do a redesign on this part.,design
-current approach is not very extensible friendly.,design
-Should this class be public?,design
-it should be part of the Api.,design
-This is how it is implemented in the ClusteredActorRef the design of the RoutedActorRef was based on.,design
-Can't that be solved with overloading?,design
-the current design isn't very exensible,design
-I would have modelled it.,design
-we should expose implementation details or not perhaps we should discuss it.,design
-should be updated to not use.,design
-Any internal usages that should be updated?,design
-refactoring should be kept separate as one is changing user API and one is internal implementaiton details.,design
-change the internals.,design
-I agree that this shouldn't be exposed.,design
-is SchedulerException ever exposed to users? ,design
-Make it private?,design
-The events need to be private and should not be exposed.,design
-They are for internal use only.,design
-Users can use awaitActivation methods from Activation.,design
-I'll make it private,design
-that other internal events are published in akka as public classes.,design
-it is dangerous as they are internals and we are not prepared to expose them.,design
-they are exposing the internals of implementation and break encapsulation.,design
-I've made them internal again.,design
-minimize exposure.,design
-This whole structure is specific to this actor and should not be used anywhere else.,design
-It is not the job of this structure to enforce that.,design
-internal should not be publicly visible.,design
-This should not be here this is specific to the TestTransport.,design
-Some implicit conversion that is only for internal use?,design
-make an internal utility method,design
-this is the way to create RoutedActorRefs.,design
-low-level API that shouldn't even be exposed.,design
-Should not be used.,design
-api type. Perhaps this is just internal.,design
-this should go inside RemoteWatcher.props.,design
-places that use props factory method pattern.,design
-it must be better to define all props in the props factory.,design
-it should be getContext().actorOf.,design
-these should be internal API.,design
-It should then be marked as internal API.,design
-actor extending UntypedProcessor.,design
-Message creation inside and outside a processor.,design
-The reason for private[persistence] is that it is used by the RecoverOnRestart trait.,design
-will become either INTERNAL API or private.,design
-What about moving the above preStart implementation to Processor?,design
-processors can only override preRestartProcessor,design
-we could move the preRestart and postRestart implementations to Processor.,design
-concrete processors should override preRestartProcessor and postRestartProcessor.,design
-using an actor context in the wrong place.,design
-It will be called only if users create new outbound messages via Message.,design
-My assumptions about LevelDB API might be incorrect.,design
-move from ActorRef to pattern.,design
-OldActor so that existing code works inside actors.,design
-Add needed implicit conversion in this package.scala file so that existing code works outside actors.,design
-Document as internal and make final.,design
-I like to move it move it.,design
-should be private.,design
-I'd definitely recommend making DeadLetterActorRef a subtype of EmptyLocalActorRef.,design
-why is this class public?,design
-I'm guessing this should be private and documented as internal.,design
-would it be possible to move to context?,design
-should not be user extendable yet.,design
-prevent subclassing by user code.,design
-its only use-case within the library is.,design
-why not private?,design
-I think it can be private.,design
-Because otherwise we wouldn’t know how to create a Future.,design
-we could also change that to require an implicit ExecutionContext.,design
-ActorRefProvider does not expose a reference to its ActorSystem.,design
-Subclassing applies to ActorSystem or ActorCell.,design
-A factory to create MessageQueues for an optionally provided ActorContext.,design
-why is it exposed?,design
-The rest of the ActorPath handling is also not private.,design
-So you don’t want people to implement MessageDispatcher?,design
-I think we should only export not the other ones.,design
-it probably makes more sense to mark as private packages.,design
-I would personally keep that export.,design
-to move the things from org.jboss.netty.akka.util to akka.util.,design
-config will become an explicit dependency as well.,design
-only used internally or should they be exposed in the API?,design
-If just internal you could consider to put them into akka.internal.util.,design
-We'll make them package protected.,design
-suggest to just wrap in a RemoteTransportException and rethrow and let the layer above decide if it should be logged or not.,design
-Just wrap in a RemoteTransportException and let the caller decide if it should be logged or not.,design
-This should be private and be documented as internal api.,design
-Why not throw an exception here instead of having to check for None in the code which uses it?,design
-Shouldn't getChild be only in UntypedActorContext? It's purpose is for java api.,design
-ActorCell must implement both and ActorContext does not expose the Java variant,design
-This should be pulled out of the trait since it is a constant put in some object.,design
-now you're exposing "this" to another Actor.,design
-private this.,design
-These should be in a companion object like usual.,design
-If the extension you have a reference to ExtendedActorSystem.,design
-If you want to log directly to j.u.l. then you should use that api directly.,design
-It allows the Akka Logging API to be used outside of Actor systems.,design
-is that it doesn't require any dependencies.,design
-Instead of directly calling into the ConcurrentSocketActor through methods like connect bind etc you should send messages to the actor.,design
-But you're calling out to the methods of the Actor which is a violation of the ActorModel.,design
-methods inside the select-function? (or are they used internally in the actor as well?,design
-No they are only invoked from #select and should not be invoked from any other site either inside or outside the actor.,design
-so move them into the select function.,design
-it's better to create the actor inside the newSocket method and pass the supervisor into it.,design
-you might as well move the method definition into receiveFrames.,design
-it should be private.,design
-will this be exposed in some way in Spray?,design
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
