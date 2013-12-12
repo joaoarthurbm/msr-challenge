@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream.GetField;
+import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -87,23 +89,31 @@ public class Main {
 			activities.addAll(project.getIssues());
 			activities.addAll(project.getPullRequests());
 			
+			BufferedWriter bf;
+			bf = new BufferedWriter(new FileWriter(new File("/home/jarthur/workspace-msr/msr-challenge/data/discussions/design/comments.data")));
 
 			for (ProjectActivity projectActivity : activities) {
-				BufferedWriter bf;
-				bf = new BufferedWriter(new FileWriter(new File("/home/jarthur/workspace-msr/msr-challenge/data/discussions/"+projectActivity.getID())));
 				
 				Collection<? extends Comment> comments = projectActivity.getComments();
 				if(comments.size() > 2) {
 					
 					for (Comment comment : comments) {
-						bf.append(comment.getDeveloper() + " - " + comment.getBody());
-						bf.newLine();
+						String clean = cleanComment(comment.getBody());
+						if (clean.split(" ").length > 2) {
+							bf.append(clean);
+							bf.newLine();
+						}
 					}
-					
 				}
-				bf.close();			
 			}
+			bf.close();			
+
 		}
+	}
+	
+	private static String cleanComment(String comment) {
+		String flat = comment.replace("\n", " ").replaceAll("[^\\x00-\\x7F]", "").replaceAll("//", "");
+		return flat;
 	}
 
 	private static void printProjectColaborator(ProjectsAnalyzer analyzer) {

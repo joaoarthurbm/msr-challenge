@@ -1,8 +1,9 @@
 package model;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class Commit implements ProjectActivity {
 
@@ -11,7 +12,7 @@ public class Commit implements ProjectActivity {
 	
 	public Commit(String commitID) {
 		this.id = commitID;
-		this.commitComments = new HashMap<String,CommitComment>();
+		this.commitComments = new TreeMap<String,CommitComment>();
 	}
 	
 	public String getID() {
@@ -30,7 +31,13 @@ public class Commit implements ProjectActivity {
 	}
 	
 	public Collection<CommitComment> getComments() {
-		return this.commitComments.values();
+		Collection<CommitComment> result = new LinkedList<CommitComment>();
+		
+		for (String key : this.commitComments.keySet()) {
+			result.add(this.commitComments.get(key));
+		}
+		
+		return result;
 	}
 
 	@Override

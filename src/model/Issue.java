@@ -2,7 +2,9 @@ package model;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * 
@@ -18,7 +20,7 @@ public class Issue implements ProjectActivity {
 	
 	public Issue(String id) {
 		this.id = id;
-		this.issueComments = new HashMap<String,IssueComment>();
+		this.issueComments = new TreeMap<String,IssueComment>();
 	}
 	
 	public void addIssueComment(String commentID, String developer, String body) {
@@ -33,7 +35,13 @@ public class Issue implements ProjectActivity {
 	}
 	
 	public Collection<IssueComment> getComments() {
-		return this.issueComments.values();
+		Collection<IssueComment> result = new LinkedList<IssueComment>();
+		
+		for (String key : this.issueComments.keySet()) {
+			result.add(this.issueComments.get(key));
+		}
+		
+		return result;
 	}
 	
 	

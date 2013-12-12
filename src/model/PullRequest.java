@@ -1,8 +1,9 @@
 package model;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class PullRequest implements ProjectActivity {
 	
@@ -11,7 +12,7 @@ public class PullRequest implements ProjectActivity {
 	
 	public PullRequest(String id) {
 		this.id = id;
-		this.pullRequestComments = new HashMap<String,PullRequestComment>();
+		this.pullRequestComments = new TreeMap<String,PullRequestComment>();
 	}
 	
 	public void addPullRequestComment(String commentID, String developer, String body, String commitID) {
@@ -26,7 +27,13 @@ public class PullRequest implements ProjectActivity {
 	}
 	
 	public Collection<PullRequestComment> getComments() {
-		return this.pullRequestComments.values();
+		Collection<PullRequestComment> result = new LinkedList<PullRequestComment>();
+		
+		for (String key : this.pullRequestComments.keySet()) {
+			result.add(this.pullRequestComments.get(key));
+		}
+		
+		return result;
 	}
 	
 	
