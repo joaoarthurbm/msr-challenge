@@ -1,4 +1,3 @@
-#comment;#developer;#id;category
 You may in your class extending ActorSystemActivator override the getActorSystemConfig;Crossing-Tech;akka-akka-pull_request_comments-1060;design
 if we make Actor an abstract base class we will break literally every user code base that exists;jboner;akka-akka-issue_comments-456;design
 Should this class be public;viktorklang;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
@@ -78,7 +77,7 @@ It should then be marked as INTERNAL API it is public from java;patriknw;akka-ak
 The reason for private is that it is used by the RecoverOnRestart class will become either INTERNAL API or private;krasserm;akka-akka-pull_request_comments-1700;design
 What about moving the above preStart implementation to Processor and make it final so that concrete processors can only override preRestartProcessor;krasserm;akka-akka-pull_request_comments-1700;design
 How about moving these into akka util;rkuhn;akka-akka-pull_request_comments-426;design
-concrete processors should override preRestartProcessor and postRestartProcessor if needed;krasserm;akka-akka-pull_request_comments-1700;desig
+concrete processors should override preRestartProcessor and postRestartProcessor if needed;krasserm;akka-akka-pull_request_comments-1700;design
 Is there a reason for exposing CompactByteString and ContByteString as return types of the public api should not be a concern to the user just like users should not need to deal with Map1 A user should never be using the CompactByteString object as the ByteString object should be creating compact ByteStrings but the abstract ByteString class should just be returning ByteString;derekjw;akka-akka-issue_comments-462;design
 I wanted to ByteStringCompact next to ByteString1 and ByteStrings to keep the three implementations together and so that ByteStringCompact has access to things which are private though currently the critical stuff is all private;oschulz;akka-akka-pull_request_comments-402;design
 Should this create the Props only Passing ActorRefFactory if actor context and potentially using it in the wrong place outside the actor;patriknw;akka-akka-pull_request_comments-1700;design
@@ -167,7 +166,7 @@ The variant Viktor proposed will actually run the refresh() while I was referrin
 Not likely but lets open a ticket about fixing all such occurences separately;viktorklang;akka-akka-pull_request_comments-997;general
 so if someone sends this a buggy message we do not want it logged in unhandled;viktorklang;akka-akka-pull_request_comments-909;general
 found the bug in the throttler;drewhk;akka-akka-pull_request_comments-970;general
-still smells like a bug is hiding in there somewhere;rkuhnakka-akka-pull_request_comments-746;general
+still smells like a bug is hiding in there somewhere;rkuhn;akka-akka-pull_request_comments-746;general
 This fix is still relevant because you expect to be able to call getBodyAs several times with the same result adding a debug log stmt should not break things;patriknw;akka-akka-pull_request_comments-894;general
 Always good idea and indeed found a bug Two more tests are in now;hbf;akka-akka-pull_request_comments-835;general
 we normally use unique names of the barriers to simplify debugging and this tests had already one;patriknw;akka-akka-pull_request_comments-818;general
@@ -212,8 +211,8 @@ I introduced a bug in previous refactoring I will update test and fix;patriknw;a
 So I conclude that the bug is fixed until proven otherwise;mslinn;akka-akka-issue_comments-544;general
 I have addressed almost all review comments so far some of the triggered some more major refactoring See the above commits I will continue the work on the actual router next week;patriknw;akka-akka-issue_comments-858;general
 I have added instructions to the comments Changing how this is generated is ticket;bantonsson;akka-akka-pull_request_comments-540;general
-I hope not that is an interesting test to join when already joined please create a ticket;patriknwakka-akka-pull_request_comments-515;general
-Yeah we have already talked about that If there is not a ticket already add one;jbonerakka-akka-pull_request_comments-505;general
+I hope not that is an interesting test to join when already joined please create a ticket;patriknw;akka-akka-pull_request_comments-515;general
+Yeah we have already talked about that If there is not a ticket already add one;jboner;akka-akka-pull_request_comments-505;general
 no it is the same for all but that is a possible improvement as mentioned in the comments about DataStream;patriknw;akka-akka-pull_request_comments-858;general
 Absolutely Will add comments;bantonsson;akka-akka-pull_request_comments-780;general
 since I feel a lack of comments from my side on this PR is not acceptable I have no choice but to say;rkuhn;akka-akka-pull_request_comments-745;general
@@ -237,7 +236,7 @@ while I like short variable names here they are part of the API by being paramet
 A closure is a lambda expression with free variables which are bound to the enclosing lexical context the core feature is that it transports these bindings out;rkuhn;akka-akka-pull_request_comments-1676;general
 our convention is to enclose variables in square brackets in log and error messages;patriknw;akka-akka-pull_request_comments-1333;general
 the if expressions could now be inlined I think that was not previously the case because everything was on two lines;rkuhn;akka-akka-pull_request_comments-1343;general
-Done although personally I do not like nested expressions so I keep the 2 step approach But  I have simplified the toString stuff;pveentjerakka-akka-commit_comments-320ee3cb4c2b750fd1f22e005e14d5276105d473;general
+Done although personally I do not like nested expressions so I keep the 2 step approach But  I have simplified the toString stuff;pveentjer;akka-akka-commit_comments-320ee3cb4c2b750fd1f22e005e14d5276105d473;general
 If you mean negative delay not negative drift then the max 1 guards for negative delay in the expression;akshaal;akka-akka-issue_comments-781;general
 I agree better remove all custom control structures and use normal if expressions the gain of the custom syntax is not worth its own cognitive weight;rkuhn;akka-akka-issue_comments-792;general
 the if expressions could now be inlined I think that was not previously the case because everything was on two lines;rkuhn;akka-akka-pull_request_comments-1343;general
@@ -272,11 +271,11 @@ Lift naming conventions are quite inconsistent so the association between or and
 I see no difference for java and scala for these formatting conventions;patriknw;akka-akka-pull_request_comments-719;general
 this formatting looks a bit surprising parenthesis structure I would suggest keeping all of createInstanceFor on the first line and start the next with recover;rkuhn;akka-akka-pull_request_comments-858;general
 this if else has somewhat misleading formatting;rkuhn;akka-akka-pull_request_comments-831;general
-of course you do not need to undo these formatting changes;patriknw;akka-akka-pull_request_comments-719;
+of course you do not need to undo these formatting changes;patriknw;akka-akka-pull_request_comments-719;general
 I would add some indentation of the whole config and fix formatting of next line;patriknw;akka-akka-pull_request_comments-700;general
 use the logging formatting instead;viktorklang;akka-akka-pull_request_comments-350;general
 I think I messed that up Later on the reformatting did not do this;RayRoestenburg;akka-akka-pull_request_comments-245;general
-wrong the changes are probably some auto-formatting thing in IntelliJ;piotrga;akka-akka-pull_request_comments-217;general
+wrong the changes are probably some auto formatting thing in IntelliJ;piotrga;akka-akka-pull_request_comments-217;general
 automatic formatting perhaps;piotrga;akka-akka-pull_request_comments-217;general
 I assumed so and I did not pay that much attention to formatting;piotrga;akka-akka-pull_request_comments-217;general
 I could not find anything about reformatting MDC values so this will just print a mildly meaningless 10 digit number What we can do is to print the time of day in UTC side stepping the expensive calendar formatting issues This will usually be well correlated with the SLF4J timestamp because the delay between the generation of the Event and the call to log should not be that long;rkuhn;akka-akka-pull_request_comments-1356;general
@@ -299,127 +298,3 @@ Are you gonna blame Eclipse for this hideous indentation;bantonsson;akka-akka-pu
 eclipse formatting due to the;patriknw;akka-akka-pull_request_comments-1339;general
 eclipse scalariform will reformat this line because of the;patriknw;akka-akka-pull_request_comments-1263;general
 looks magic and fragile and eclipse does not understand it but if it is not possible then just ignore my comment;patriknw;akka-akka-pull_request_comments-1027;general
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
