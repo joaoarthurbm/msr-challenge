@@ -124,6 +124,8 @@ I think it is better to create the actor inside the newSocket method and pass th
 this method is only ever used in receiveFrames you might as well move the method definition into receiveFrames;viktorklang;akka-akka-pull_request_comments-92;design
 will this be exposed in some way in Spray to serve static content;drewhk;akka-akka-issue_comments-1321;design
 do we need to expose this in ActorRefProvider interface;patriknw;akka-akka-commit_comments-9c762dec2062f7a651363a6cc90d8105126d8f35;design
+Since this is all so similar and now in quite a thought through state I am going to take a crack at refactoring it to one generic solution;viktorklang;akka-akka-pull_request_comments-344;design
+reverted to the original code still like to have some comments to those Providers though since these design desicions are undocumented;viktorklang;akka-akka-pull_request_comments-554;design
 LGTM;rkuhn;akka-akka-issue_comments-990;general
 LGTM;patriknw;akka-akka-issue_comments-991;general
 LGTM;rkuhn;akka-akka-issue_comments-993;general
@@ -156,6 +158,210 @@ Added a test that will start failing when this bug is fixed;viktorklang;akka-akk
 we never loop around when order becomes Concurrent so it can not really be that here;bantonsson;akka-akka-commit_comments-61e47c115da8cfbcb1c2abfda37752cb436fd7eb;general
 That is the beauty with actor logging you do not need to get the loop on the same stack;rkuhn;akka-akka-issue_comments-332;general
 What about returning 0 here to handle potentially enqueued commands It is not immediately clear to me that this can not be an infinite loop in the worst case;rkuhn;akka-akka-pull_request_comments-1355;general
+alright do you prefer to do the removal inside the above loop;patriknw;akka-akka-pull_request_comments-1459;general
+ok we will keep the test I have changed the loop count Will merge;patriknw;akka-akka-issue_comments-1502;general
+Closed is for we do not have an underlying transport yet while WaitActivity is for we are waiting for activity on the underlying transport Incoming connections logically start out in the second stage the first stage happens unbeknownst to us;rkuhn;akka-akka-pull_request_comments-831;general
+It will probably change the order on the class path while running the testkit tests but it has no effect and is not intentional Just residue from the first rewrite;bantonsson;akka-akka-pull_request_comments-692;general
+SIGAR returns 3 while jmx returns 1 There is no requirement to return 1 or 3 and one minutes is good;helena;akka-akka-pull_request_comments-689;general
+The variant Viktor proposed will actually run the refresh() while I was referring to making the sending of RefreshCache messages recurring While those messages could potentially pile up running the refresh job should be fine if it is done synchronously I still think that the scheduleOnce approach is the easiest to grasp and also it does not leave state lingering around which needs to be cleaned up;rkuhn;akka-akka-pull_request_comments-485;general
+Not likely but lets open a ticket about fixing all such occurences separately;viktorklang;akka-akka-pull_request_comments-997;general
+so if someone sends this a buggy message we do not want it logged in unhandled;viktorklang;akka-akka-pull_request_comments-909;general
+found the bug in the throttler;drewhk;akka-akka-pull_request_comments-970;general
+still smells like a bug is hiding in there somewhere;rkuhnakka-akka-pull_request_comments-746;general
+This fix is still relevant because you expect to be able to call getBodyAs several times with the same result adding a debug log stmt should not break things;patriknw;akka-akka-pull_request_comments-894;general
+Always good idea and indeed found a bug Two more tests are in now;hbf;akka-akka-pull_request_comments-835;general
+we normally use unique names of the barriers to simplify debugging and this tests had already one;patriknw;akka-akka-pull_request_comments-818;general
+t does not check if it is an event it could be some stray message and then it will not get sent to unhandled and it is hard to debug;viktorklang;akka-akka-pull_request_comments-703;general
+I would probably log the exception at debug level;viktorklang;akka-akka-pull_request_comments-689;general
+No It is a bug... Sigh;drewhk;akka-akka-pull_request_comments-652;general
+that is a bug and a actually a very stupid one It is duplicated further;drewhk;akka-akka-pull_request_comments-652;general
+ouch debug residue;rkuhn;akka-akka-pull_request_comments-621;general
+Debug residue removing;viktorklang;akka-akka-pull_request_comments-554;general
+Debug residue removing;viktorklang;akka-akka-pull_request_comments-554;general
+I am using a debugger to see what is going on Will do proper debug logs next;avrecko;akka-akka-pull_request_comments-486;general
+Removed Was only used for debugging;viktorklang;akka-akka-pull_request_comments-426;general
+bug I fixed it for the cause case but not the my no cause case;astubbs;akka-akka-pull_request_comments-403;general
+To aid in debugging might be nice to know why the message did not get through;viktorklang;akka-akka-pull_request_comments-395;general
+Because newMemberSet is a Set but I need it to be a SortedSet See the comment about bug in Scala There is no CanBuildFrom for SortedSet;jboner;akka-akka-pull_request_comments-329;general
+mistake by me changed from debug when debugging fixing now;jboner;akka-akka-pull_request_comments-281;general
+very strange indeed It would be possible to work around that compiler bug it is adding the generated closure to the public static members but it is broken presumably because it is indeed nested within the by using lazy val but that is too expensive for this minor wart;rkuhn;akka-akka-pull_request_comments-250;general
+BTW it is worth mentioning here that those log at DEBUG level and you must enable debug log level with;patriknw;akka-akka-pull_request_comments-248;general
+Should include more debug info which consumer;viktorklang;akka-akka-pull_request_comments-217;general
+Might want to include some more debug info about which actorref did not manage to activate within how long;viktorklang;akka-akka-pull_request_comments-217;general
+It is scalariform Only happens for align parameters setting which we use I filed a bug;patriknw;akka-akka-pull_request_comments-209;general
+othewise it is a bug in the scheduler;patriknw;akka-akka-pull_request_comments-206;general
+Yep good idea I used that block for debugging at one point which is why it is so verbose;derekjw;akka-akka-pull_request_comments-199;general
+Also you have a bug you a preprending that to that instead of this which means that you are lacking a test;viktorklang;akka-akka-pull_request_comments-1709;general
+no this was not the bug but this is clearly not correct it should do records.filterNot(_.observer == observer);patriknw;akka-akka-pull_request_comments-1701;general
+this does not really prune anything is this the bug you meant;rkuhn;akka-akka-pull_request_comments-1701;general
+Nice catch That was a subtle bug;bantonsson;akka-akka-pull_request_comments-1552;general
+I was looking for a way to reduce unhelpful logging output without disabling stack traces completely so that for certain debugging cases users can turn it back on ideally without needing to recompile;sirthias;akka-akka-pull_request_comments-1536;general
+can not we change this Array to this bug is just another sign that the small performance advantage of array when parsing the original string is not worth it;patriknw;akka-akka-pull_request_comments-1389;general
+It helps debugging and no security is violated as there is none;drewhk;akka-akka-pull_request_comments-1338;general
+I like this name change;patriknw;akka-akka-pull_request_comments-1338;general
+Just looking at the property name I thought it was something else I was thinking timeout on the sender side that it expects the ack within this timeCould we use something else than timeout flush;patriknw;akka-akka-pull_request_comments-1338;general
+String.valueOf(rawValue);patriknw;akka-akka-pull_request_comments-1338;general
+Yes make sense also for IndexedSeq above;drewhk;akka-akka-pull_request_comments-1338;general
+pattern match since you are grabbing the values anyway;patriknw;akka-akka-pull_request_comments-1338;general
+please move comment before if to make it align properly;rkuhn;akka-akka-pull_request_comments-1338;general
+If we make it optional then we would have to require either an id or a manifest to be able to deserialize the message;bantonsson;akka-akka-pull_request_comments-1338;general
+The problem is not reproducible with this fix the problem will be easier to debug if it manifests again;viktorklang;akka-akka-issue_comments-830;general
+The return value is only used in one place line 195 where the whole bug fix originated;bantonsson;akka-akka-issue_comments-794;general
+bug fixed;patriknw;akka-akka-issue_comments-787;general
+I introduced a bug in previous refactoring I will update test and fix;patriknw;akka-akka-issue_comments-787;general
+So I conclude that the bug is fixed until proven otherwise;mslinn;akka-akka-issue_comments-544;general
+I have addressed almost all review comments so far some of the triggered some more major refactoring See the above commits I will continue the work on the actual router next week;patriknw;akka-akka-issue_comments-858;general
+I have added instructions to the comments Changing how this is generated is ticket;bantonsson;akka-akka-pull_request_comments-540;general
+I hope not that is an interesting test to join when already joined please create a ticket;patriknwakka-akka-pull_request_comments-515;general
+Yeah we have already talked about that If there is not a ticket already add one;jbonerakka-akka-pull_request_comments-505;general
+no it is the same for all but that is a possible improvement as mentioned in the comments about DataStream;patriknw;akka-akka-pull_request_comments-858;general
+Absolutely Will add comments;bantonsson;akka-akka-pull_request_comments-780;general
+since I feel a lack of comments from my side on this PR is not acceptable I have no choice but to say;rkuhn;akka-akka-pull_request_comments-745;general
+Same comments as above;viktorklang;akka-akka-pull_request_comments-689;general
+Excellent thanks Please create a branch off of master and open a pull request with the renames comments;viktorklang;akka-akka-pull_request_comments-554;general
+Thanks for the review Ronald I will pick up your comments tomorrow morning;RayRoestenburg;akka-akka-pull_request_comments-344;general
+I think these comments were left over from the previous pull request;RayRoestenburg;akka-akka-pull_request_comments-245;general
+Ok that is probably a good idea There are too many comments here now to see what is what;RayRoestenburg;akka-akka-pull_request_comments-245;general
+No need just do as the comments that follow say;viktorklang;akka-akka-pull_request_comments-217;general
+we actually tend to fix up such things by amending the commit and pushing with github is smart enough to figure it all out keeping the PR history and comments intact;rkuhn;akka-akka-pull_request_comments-1016;general
+Updated according to review comments;drewhk;akka-akka-issue_comments-997;general
+All comments have been addressed Should be picked up by the Kitteh;bantonsson;akka-akka-issue_comments-909;general
+Aside from last batch of comments LGTM;viktorklang;akka-akka-issue_comments-893;general
+I have not followed the problems so I do not have any valuable comments here;patriknw;akka-akka-issue_comments-630;general
+Thanks for the changes I added some minor coding style related comments I vote for merging after those have been applied;hseeberger;akka-akka-issue_comments-500;general
+ok I have removed the vals but want comments so some curlies and newlines;patriknw;akka-akka-pull_request_comments-209;general
+we have a convention to use square brackets around variables in log and exception messages;patriknw;akka-akka-pull_request_comments-831;general
+we have used BeforeAll and a static system variable at some other places;patriknw;akka-akka-pull_request_comments-780;general
+I think our convention is to use around variable data in log messages at least Jonas has pointed that out for me;patriknw;akka-akka-pull_request_comments-242;general
+while I like short variable names here they are part of the API by being parameter names I recommend using slightly more readable ones;drewhk;akka-akka-pull_request_comments-1700;general
+A closure is a lambda expression with free variables which are bound to the enclosing lexical context the core feature is that it transports these bindings out;rkuhn;akka-akka-pull_request_comments-1676;general
+our convention is to enclose variables in square brackets in log and error messages;patriknw;akka-akka-pull_request_comments-1333;general
+the if expressions could now be inlined I think that was not previously the case because everything was on two lines;rkuhn;akka-akka-pull_request_comments-1343;general
+Done although personally I do not like nested expressions so I keep the 2 step approach But  I have simplified the toString stuff;pveentjerakka-akka-commit_comments-320ee3cb4c2b750fd1f22e005e14d5276105d473;general
+If you mean negative delay not negative drift then the max 1 guards for negative delay in the expression;akshaal;akka-akka-issue_comments-781;general
+I agree better remove all custom control structures and use normal if expressions the gain of the custom syntax is not worth its own cognitive weight;rkuhn;akka-akka-issue_comments-792;general
+the if expressions could now be inlined I think that was not previously the case because everything was on two lines;rkuhn;akka-akka-pull_request_comments-1343;general
+btw I do not know what is considered a complete rewrite While the structure of my code is very different the getNextState method is the same and the vectors cclass and states are just the evaluated versions of the original ones that had expressions there;drewhk;akka-akka-pull_request_comments-1624;general
+This val could be eliminated by just moving the expression into the first call of offerElement eliminating the risk of the nanos val being improperly used in the code block;viktorklang;akka-akka-pull_request_comments-1630;general
+the local def was only used to get around the old clunky syntax can make it nice and slick in one expression now;rkuhn;akka-akka-pull_request_comments-250;general
+Only used in one place inline expression there;viktorklang;akka-akka-pull_request_comments-700;general
+The flow method acts as the delimiter of flow expression composition;astubbs;akka-akka-pull_request_comments-770;general
+Type in expressions to have them evaluated;ijuma;akka-akka-pull_request_comments-838;general
+Is this line safe;viktorklang;akka-akka-pull_request_comments-970;general
+Sorry I was looking at the wrong word yeah for the may in line 82 I leave it as is;rocketraman;akka-akka-pull_request_comments-952;general
+I meant to ask why this line is not moved three lines up;rkuhn;akka-akka-pull_request_comments-940;general
+I think that is problematic from the command line script;patriknw;akka-akka-pull_request_comments-927;general
+header line here;patriknw;akka-akka-pull_request_comments-926;general
+this header line is wrong remove;patriknw;akka-akka-pull_request_comments-926;general
+I would suggest switching to either Vector or a mutable append data structure to avoid reverse on line 28;viktorklang;akka-akka-pull_request_comments-91;general
+I will remove my link and see if the docs still build If they do then we can probably get rid of that line altogether;richdougherty;akka-akka-pull_request_comments-890;general
+Is not there a stray in the line 10 TimeUnit SECONDS;bantonsson;akka-akka-pull_request_comments-880;general
+Why this line here;viktorklang;akka-akka-pull_request_comments-858;general
+look on the line above also checked when reading the config;patriknw;akka-akka-pull_request_comments-858;general
+when using one parameter per line it is preferred to start the first one on a new line;patriknw;akka-akka-pull_request_comments-831;general
+Yes no extra line there either;bantonsson;akka-akka-pull_request_comments-814;general
+Ideally line breaks should be done virtually by formatting in your editor Since that is not the case I do not think we should sacrifice readability for people using unix terminals 120 is a good modern limit;viktorklang;akka-akka-pull_request_comments-719;general
+it looks like you have some auto line break setting that does not match our conventions 120 char lines are ok;patriknw;akka-akka-pull_request_comments-719;general
+that was a strange link conversion it starts on line 203;patriknw;akka-akka-pull_request_comments-703;general
+This line does not do anything;viktorklang;akka-akka-pull_request_comments-698;general
+Does this empty line somehow contain secret information is it some side channel 429 what do these primes tell us;rkuhn;akka-akka-pull_request_comments-511;general
+This line makes 0 sense to me;viktorklang;akka-akka-pull_request_comments-380;general
+And the line you are commenting on does not make sense;jboner;akka-akka-pull_request_comments-329;general
+Can you change your commit message to match the usual Akka conventions;richdougherty;akka-akka-issue_comments-1194;general
+Lift naming conventions are quite inconsistent so the association between or and is probably much weaker than with Option In any case the Lift community is a strict subset of the Scala community so or is an improvement over;djspiewak;akka-akka-pull_request_comments-147;general
+I see no difference for java and scala for these formatting conventions;patriknw;akka-akka-pull_request_comments-719;general
+this formatting looks a bit surprising parenthesis structure I would suggest keeping all of createInstanceFor on the first line and start the next with recover;rkuhn;akka-akka-pull_request_comments-858;general
+this if else has somewhat misleading formatting;rkuhn;akka-akka-pull_request_comments-831;general
+of course you do not need to undo these formatting changes;patriknw;akka-akka-pull_request_comments-719;
+I would add some indentation of the whole config and fix formatting of next line;patriknw;akka-akka-pull_request_comments-700;general
+use the logging formatting instead;viktorklang;akka-akka-pull_request_comments-350;general
+I think I messed that up Later on the reformatting did not do this;RayRoestenburg;akka-akka-pull_request_comments-245;general
+wrong the changes are probably some auto-formatting thing in IntelliJ;piotrga;akka-akka-pull_request_comments-217;general
+automatic formatting perhaps;piotrga;akka-akka-pull_request_comments-217;general
+I assumed so and I did not pay that much attention to formatting;piotrga;akka-akka-pull_request_comments-217;general
+I could not find anything about reformatting MDC values so this will just print a mildly meaningless 10 digit number What we can do is to print the time of day in UTC side stepping the expensive calendar formatting issues This will usually be well correlated with the SLF4J timestamp because the delay between the generation of the Event and the call to log should not be that long;rkuhn;akka-akka-pull_request_comments-1356;general
+True but I do not want to waste CPU formatting something that might not be used and then the user can not really reformat easily;viktorklang;akka-akka-pull_request_comments-1356;general
+is this formatting looking good;patriknw;akka-akka-pull_request_comments-1095;general
+this is an automatic formatting by scalariform in eclipse only when there is;patriknw;akka-akka-pull_request_comments-1033;general
+I thought I had done that but some reformatting or automatic importing must have messed it up again Will fix;rkuhn;akka-akka-pull_request_comments-1027;general
+LGTM apart from some formatting;rkuhn;akka-akka-issue_comments-1485;general
+Added documentation and fixed formatting;patriknw;akka-akka-issue_comments-1228;general
+LGTM apart from the formatting;bantonsson;akka-akka-issue_comments-1228;general
+Apart from formatting LGTM;drewhk;akka-akka-issue_comments-1228;general
+Could you revert this formatting change;jboner;akka-akka-commit_comments-8f7bd6909a7357b05d2ffeeebf51c8073ec1d742;general
+Nice formatting change Should switch to the FSMDocTest approach because that still leaks when tests fail;rkuhn;akka-akka-commit_comments-8c5d10df8e75aec760e39dd71658b963febd2428;general
+this file should have worked without reformatting as far as I can see reformatting it is fine but want to be sure you did not reformat because the parser was upset about the original;havocp;akka-akka-commit_comments-4b8f11ea92ab3fb4809e2ca84b11ac93771477bb;general
+ouch I blame my scrapped Eclipse workspace for losing this piece of configuration;rkuhn;akka-akka-pull_request_comments-705;general
+we have those to be able to run tests directly inside Eclipse when the scalatests runner is working we will remove all of them;patriknw;akka-akka-pull_request_comments-700;general
+yes it looks a lot more funny outside of Eclipse;rkuhn;akka-akka-pull_request_comments-541;general
+imports at top of file is normally something I just want the IDE to take care of and Eclipse does not do this kind of multi import but I have changed it for you;patriknw;akka-akka-pull_request_comments-214d;general
+Are you gonna blame Eclipse for this hideous indentation;bantonsson;akka-akka-pull_request_comments-1731;general
+eclipse formatting due to the;patriknw;akka-akka-pull_request_comments-1339;general
+eclipse scalariform will reformat this line because of the;patriknw;akka-akka-pull_request_comments-1263;general
+looks magic and fragile and eclipse does not understand it but if it is not possible then just ignore my comment;patriknw;akka-akka-pull_request_comments-1027;general
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
