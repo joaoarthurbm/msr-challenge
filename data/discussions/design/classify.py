@@ -38,7 +38,12 @@ def remove_stop_words(sentence):
 	stopset.add("they're")
 	stopset.add("you're")
 	stopset.add("that's")
+	stopset.add("shouldnt")
 	stopset.add("shouldn't")
+	stopset.add("didn't")
+	stopset.add("didnt")
+	stopset.add("dont")
+	stopset.add("don't")
 
 	# negatives
 	stopset.add("doesn't")	
@@ -68,13 +73,15 @@ def main():
 		pair = (bigram_word_features(line[0]), line[1])
 		dataset.append(pair)
 
-	train = dataset[150:]
-        test = dataset[:150]
+	train = dataset[len(dataset)/2:]
+        test = dataset[:len(dataset)/2]
 
-	classifier = DecisionTreeClassifier.train(dataset)
+	classifier = NaiveBayesClassifier.train(train)
         
-	for line in open(sys.argv[1]):
-		print line, ';', classifier.classify(bigram_word_features(remove_stop_words(line)))
+	print nltk.classify.accuracy(classifier, test)
+
+	#for line in open(sys.argv[1]):
+	#	print line, ';', classifier.classify(bigram_word_features(remove_stop_words(line)))
 
 if  __name__ =='__main__':
     main()

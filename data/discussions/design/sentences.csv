@@ -1,3 +1,26 @@
+named parameter would make it more readable isClient false;patriknw;akka-akka-pull_request_comments-994;general
+No this reads fine Using List or Vector as arguments is more readable It's only in the case where there is an explicit conversion that I think it needs to be overstated;bantonsson;akka-akka-pull_request_comments-838;general
+I prefer to[immutable.Seq] even though you get the same thing The intention is more readable This is the only place with to[Vector] that I could find;bantonsson;akka-akka-pull_request_comments-838;general
+I think that piece of code is deceptive Can we make it more readable;viktorklang;akka-akka-pull_request_comments-703;general
+I don't understand why this would be less readable but it's up to you;patriknw;akka-akka-pull_request_comments-538;general
+in what way is this more readable than the original;patriknw;akka-akka-pull_request_comments-456;general
+while I like short variable names here they are part of the API by being parameter names I recommend using slightly more readable ones cid particularly but I always confused by snr too I always think of signal-to-noise-ratio;drewhk;akka-akka-pull_request_comments-1700;general
+can this be written in a more readable way;patriknw;akka-akka-pull_request_comments-1649;general
+I prefer the code to be correct and readable first when we see that that is a performance problem we’ll fix it but not before;rkuhn;akka-akka-pull_request_comments-1593;general
+can you use these constants in receiveGossip would make things more readable;patriknw;akka-akka-pull_request_comments-1535;general
+please reformat these to be more readable;rkuhn;akka-akka-pull_request_comments-1452;general
+This split makes it all much more readable Very nice;bantonsson;akka-akka-pull_request_comments-1432;general
+well let me explain where I come from this is for logging and the output should be useful for the one seeing it raw millis are not useful offsets are also not really useful because all those calculations in the head are not easy Hence my conclusion that if we include something then it should be human-readable;rkuhn;akka-akka-pull_request_comments-1356;general
+I had a match before but it really doesn't add any value since I don't need the cast anywhere So I found the single isInstanceOf actually a bit more readable;sirthias;akka-akka-pull_request_comments-1328;general
+You're right That is unreadable without syntax highlighting;bantonsson;akka-akka-pull_request_comments-1323;general
+Probably not I can expand it into two cases if that's more readable;bantonsson;akka-akka-pull_request_comments-1113;general
+I actually find the case m MemberDowned MemberRemoved more readable;bantonsson;akka-akka-pull_request_comments-1112;general
+I patched the CSS to make this readable in HTML but non breaking spaces are probably better Although they could mess with wrapping;richdougherty;akka-akka-pull_request_comments-1095;general
+My experience is that looks unreadable for multi-word things but I have not tried it together with;patriknw;akka-akka-pull_request_comments-1095;general
+The benefits are more readable failure messages and two lines less could be used through-out;rkuhn;akka-akka-pull_request_comments-1030;general
+this section is basically unreadable it would greatly benefit from some white space;rkuhn;akka-akka-pull_request_comments-1029;general
+Looks great A lot nicer more readable and intuitive;jboner;akka-akka-issue_comments-674;general
+Very nice test I love how these multi-node tests becomes much simpler and more readable than the in-memory counterparts Also that a language and set of patterns for how to write these is emerging;jboner;akka-akka-issue_comments-483;general
 This is a actually a chapter that would be more readable if split into Java Scala since it's more sample than text;patriknw;akka-akka-issue_comments-150;general
 But I also try to limit the scope of the ticket I already did some cleaning to make it easier readable;pveentjer;akka-akka-commit_comments-aaec3aef77d7780a006bcac0ce0d6de2db77e7b7;general
 You can make this more readable by using the implicit conversion available in;patriknw;akka-akka-commit_comments-7ca5a4161bb279d94dc1de1750cdfb966ca39151;general
