@@ -1,3 +1,4 @@
+import sys
 from random import shuffle
 from textblob import *
 from textblob.classifiers import DecisionTreeClassifier
@@ -70,9 +71,10 @@ def main():
 	train = dataset[150:]
         test = dataset[:150]
 
-	classifier = DecisionTreeClassifier.train(train)
-        print nltk.classify.accuracy(classifier, test)
-
+	classifier = DecisionTreeClassifier.train(dataset)
+        
+	for line in open(sys.argv[1]):
+		print line, ';', classifier.classify(bigram_word_features(remove_stop_words(line)))
 
 if  __name__ =='__main__':
     main()

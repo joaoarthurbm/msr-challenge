@@ -1,3 +1,38 @@
+This is a actually a chapter that would be more readable if split into Java Scala since it's more sample than text;patriknw;akka-akka-issue_comments-150;general
+But I also try to limit the scope of the ticket I already did some cleaning to make it easier readable;pveentjer;akka-akka-commit_comments-aaec3aef77d7780a006bcac0ce0d6de2db77e7b7;general
+You can make this more readable by using the implicit conversion available in;patriknw;akka-akka-commit_comments-7ca5a4161bb279d94dc1de1750cdfb966ca39151;general
+Yes I'll add that to the comments so things might be more readable;bantonsson;akka-akka-commit_comments-61e47c115da8cfbcb1c2abfda37752cb436fd7eb;general
+please somehow demarcate the end of the constructor arguments given scalariform indentation rules this probably means adding an empty line;rkuhn;akka-akka-pull_request_comments-831;general
+In doc code we have switched to 2 space indentation for java code also and line breaks after some 70 chars unsure about the exact number;patriknw;akka-akka-pull_request_comments-785;general
+please fix indentation;rkuhn;akka-akka-pull_request_comments-785;general
+I'd add some indentation of the whole config and fix formatting of next line;patriknw;akka-akka-pull_request_comments-700;general
+Nah it looks like you've changed indentation;viktorklang;akka-akka-pull_request_comments-522;general
+This is a bit half baked isn’t it Either do it fully with nice indentation or leave it on one line;rkuhn;akka-akka-pull_request_comments-426;general
+someone broke you indentation;rkuhn;akka-akka-pull_request_comments-209;general
+Are you gonna blame Eclipse for this hideous indentation;bantonsson;akka-akka-pull_request_comments-1731;general
+Wrong as in 3chars or wrong as in the code block has wrong indentation;viktorklang;akka-akka-pull_request_comments-141;general
+wrong indentation;patriknw;akka-akka-pull_request_comments-141;general
+yes and I think scalariform indentation will be wrong if placing it above the case;patriknw;akka-akka-pull_request_comments-1136;general
+indentation;rkuhn;akka-akka-pull_request_comments-1040;general
+indentation braces fixed Ready;viktorklang;akka-akka-issue_comments-1485;general
+Why 4 spaces indentation mixed with 2 Matters since it is part of docs IMHO;jboner;akka-akka-commit_comments-5e03cda4bb77a95aa84aa00225e719b6c1edfe63;general
+Use 2 spaces indentation below;jboner;akka-akka-commit_comments-41ce42c8f721f4102c4e035144ac0f6562cb15c6;general
+So it appears that this singleton scheduler serves some purpose;pveentjer;akka-akka-commit_comments-c8c12ab56b8303918e54c80713561a5b4f44a6cb;design
+I still think it would make sense to take and stash handOverData during the entire lifetime of the singleton;rkuhn;akka-akka-pull_request_comments-1040;design
+that would not be a very well behaving singleton should be documented;patriknw;akka-akka-pull_request_comments-1040;design
+Should it be ClusterSingletonManager and the child is the actual singleton;patriknw;akka-akka-pull_request_comments-1040;design
+that would not be a very well behaving singleton should be documented;patriknw;akka-akka-pull_request_comments-1040;design
+a factory, which can be instantiated without constructor arguments;rkuhn;akka-akka-issue_comments-123;design
+same thing at other places that use props factory method pattern;patriknw;akka-akka-pull_request_comments-1500;design
+At some point I added factory methods for message to CamelExtension so messages could only be created from camel instance which should be available from every actor;piotrga;akka-akka-pull_request_comments-217;design
+Shouldn't this use the systems threadfactorys ClassLoader;viktorklang;akka-akka-pull_request_comments-275;design
+This will be used automatically if you use the factory method do not pass in a loader and the context loader is non null;rkuhn;akka-akka-pull_request_comments-380;design
+A factory to create MessageQueues for an optionally provided;patriknw;akka-akka-pull_request_comments-456;design
+From user api its Companion object providing factory methods;patriknw;akka-akka-pull_request_comments-493;design
+I think this should be accompanied by a factory which accepts and has the appropriate WARNING signs uses;rkuhn;akka-akka-pull_request_comments-583;design
+Why different order of args in this factory method compared to the constructor;jboner;akka-akka-pull_request_comments-698;design
+I would recommend offering a static factory method which takes an and makes such a top-level supervisor and then an method which takes a supervisor message;rkuhn;akka-akka-pull_request_comments-785;design
+instead of an the factory method should take an so that you can also create the supervisor below another;rkuhn;akka-akka-pull_request_comments-785;design
 You may in your class extending ActorSystemActivator override the getActorSystemConfig;Crossing-Tech;akka-akka-pull_request_comments-1060;design
 if we make Actor an abstract base class we will break literally every user code base that exists;jboner;akka-akka-issue_comments-456;design
 Should this class be public;viktorklang;akka-akka-commit_comments-4b4f38c9738b06e04b956bef669855a899118d3e;design
