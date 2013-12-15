@@ -33,20 +33,70 @@ def remove_stop_words(sentence):
 	stopset.add("should")	
 
 
-	stopset.add("it's")
 	stopset.add("i'll")
+	stopset.add("ill")
+	stopset.add("it's")
+	stopset.add("its")
+	stopset.add("im")
 	stopset.add("they're")
+	stopset.add("theyre")
 	stopset.add("you're")
+	stopset.add("youre")
 	stopset.add("that's")
+	stopset.add("thats")
 	stopset.add("shouldnt")
 	stopset.add("shouldn't")
 	stopset.add("didn't")
 	stopset.add("didnt")
 	stopset.add("dont")
 	stopset.add("don't")
-
-	# negatives
 	stopset.add("doesn't")	
+	stopset.add("doesnt")
+	stopset.add("wasnt")
+	stopset.add("wasn't")
+
+	#date
+	stopset.add("mon")	
+	stopset.add("monday")	
+	stopset.add("tue")	
+	stopset.add("tuesday")	
+	stopset.add("wed")	
+	stopset.add("wednesday")	
+	stopset.add("thursday")	
+	stopset.add("thu")	
+	stopset.add("friday")	
+	stopset.add("fri")	
+	stopset.add("sat")	
+	stopset.add("saturday")	
+	stopset.add("sun")	
+	stopset.add("sunday")	
+	stopset.add("jan")	
+	stopset.add("january")	
+	stopset.add("feb")	
+	stopset.add("february")	
+	stopset.add("mar")	
+	stopset.add("march")	
+	stopset.add("apr")	
+	stopset.add("april")	
+	stopset.add("may")	
+	stopset.add("jun")	
+	stopset.add("june")	
+	stopset.add("july")	
+	stopset.add("jul")	
+	stopset.add("aug")	
+	stopset.add("august")	
+	stopset.add("sep")	
+	stopset.add("september")	
+	stopset.add("nov")	
+	stopset.add("november")	
+	stopset.add("oct")	
+	stopset.add("october")	
+	stopset.add("dec")	
+	stopset.add("december")	
+	stopset.add("pm")
+	stopset.add("am")
+	stopset.add("sense")
+
 	
 	return [word for word in sentence.lower().split(" ") if word not in stopset]
 
@@ -76,12 +126,11 @@ def main():
 	train = dataset[len(dataset)/2:]
         test = dataset[:len(dataset)/2]
 
-	classifier = NaiveBayesClassifier.train(train)
+	classifier = DecisionTreeClassifier.train(dataset)
         
-	print nltk.classify.accuracy(classifier, test)
 
-	#for line in open(sys.argv[1]):
-	#	print line, ';', classifier.classify(bigram_word_features(remove_stop_words(line)))
+	for line in open(sys.argv[1]):
+		print ' '.join(line.split(" ")[2:]), classifier.classify(bigram_word_features(remove_stop_words(' '.join(line.split(" ")[2:]))))
 
-if  __name__ =='__main__':
+if __name__ =='__main__':
     main()
