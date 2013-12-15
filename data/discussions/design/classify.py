@@ -44,6 +44,7 @@ def remove_stop_words(sentence):
 	stopset.add("youre")
 	stopset.add("that's")
 	stopset.add("thats")
+	stopset.add("theres")
 	stopset.add("shouldnt")
 	stopset.add("shouldn't")
 	stopset.add("didn't")
