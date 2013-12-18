@@ -184,4 +184,9 @@ public class Project {
 		return allComments;
 		
 	}
+	
+	@Override
+	public String toString() {
+		return this.getID();
+	}
 }
