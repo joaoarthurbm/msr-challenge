@@ -1,3 +1,5 @@
+# -*- coding: iso-8859-15 -*-
+import logging
 import sys
 from random import shuffle
 from textblob import *
@@ -31,8 +33,6 @@ def remove_stop_words(sentence):
 	stopset.add('worse')
 	stopset.add('worst')
 	stopset.add("should")	
-
-
 	stopset.add("i'll")
 	stopset.add("ill")
 	stopset.add("it's")
@@ -55,7 +55,6 @@ def remove_stop_words(sentence):
 	stopset.add("doesnt")
 	stopset.add("wasnt")
 	stopset.add("wasn't")
-
 	#date
 	stopset.add("mon")	
 	stopset.add("monday")	
@@ -112,26 +111,48 @@ def bigram_word_features(words, score_fn=BigramAssocMeasures.chi_sq, n=200):
 
 
 def main():
-
+	logging.basicConfig(filename='log-classifier.log',level=logging.INFO)
 	dataset = []
 	
 	lines = [ ( remove_stop_words(line.strip().split(';')[0]) , line.strip().split(';')[-1]) for line in open("sentences.csv", 'r')]
 	shuffle(lines)
-	
-
 
 	for line in lines:
 		pair = (bigram_word_features(line[0]), line[1])
 		dataset.append(pair)
 
+	# check accuracy
 	train = dataset[len(dataset)/2:]
         test = dataset[:len(dataset)/2]
-
+	
+	logging.info('Training classifier')
 	classifier = DecisionTreeClassifier.train(dataset)
-        
+	logging.info('Classifier trained')
 
-	for line in open(sys.argv[1]):
-		print ' '.join(line.split(" ")[2:]), classifier.classify(bigram_word_features(remove_stop_words(' '.join(line.split(" ")[2:]))))
+	for file_name in open(sys.argv[1]):
+
+		short_file_name = file_name.strip().split("/")[-1]
+
+		logging.info('Classifying ' + short_file_name)
+		f = open('/home/jarthur/workspace-msr/msr-challenge/data/discussions/categorized/'+short_file_name,'w+')
+		for line in open(file_name.strip()):
+			
+			tokens = line.strip().split(" ")
+			developer = tokens[0]
+			root_project = tokens[1]
+			activity = tokens[2]
+			sentence = ' '.join(tokens[3:])
+
+			logging.info('classifying: '+ ' '.join(remove_stop_words(sentence)))
+			try:
+				toWrite = developer,root_project,activity,sentence,classifier.classify(bigram_word_features(remove_stop_words(sentence))),"\n"
+				toWrite = ' '.join(toWrite)
+				logging.info('line classified: '+toWrite)
+				f.write(toWrite)
+			except ZeroDivisionError:
+				logging.error('not classified ' + ' '.join(remove_stop_words(sentence)))
+		logging.info('File classified ' + short_file_name)
+		f.close()
 
 if __name__ =='__main__':
     main()

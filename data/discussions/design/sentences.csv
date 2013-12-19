@@ -1,3 +1,4 @@
+If you want to make it overridable not declare it as static as override static methods many times give inconsistent behavior;joao;id;design
 Youre hiding the SecureString dependency on allocatorsh by indirect include via serializeh;rkuhn;bitcoin-bitcoin-commit_comments-dac0beb01b9ffe01ef85b3334c7077909321370a;design
 makes sense here after the dependency is moved to class;rkuhn;bitcoin-bitcoin-commit_comments-dac0beb01b9ffe01ef85b3334c7077909321370a;design
 Without a doubt ideally there are no indirect dependencies anywhere but that would take a lot of knowledge about all files dependency fulfillment and usage;rkuhn;bitcoin-bitcoin-commit_comments-dac0beb01b9ffe01ef85b3334c7077909321370a;design
