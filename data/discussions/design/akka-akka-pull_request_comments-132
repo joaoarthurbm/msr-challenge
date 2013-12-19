@@ -1,6 +1,0 @@
-<viktorklang> I'd be surprised if this is the way to create RoutedActorRefs. Jonas?
-<jboner> No this is cheating by using low-level API that shouldn't even be exposed. 
-It should be configured to be a routed ref. 
-But that will change when Roland is done. 
-<jboner> Same here. Should not be used. 
-<henrikengstrom> Ok, I'll wait for Rolands fix then.

@@ -1,6 +1,0 @@
-<piotrga> The events need to be private and should not be exposed. They are for internal use only. Users can use awaitActivation methods from Activation trait. 
-<RayRoestenburg> Thinking about it, I'll make it private, to not confuse users. It's just that other 'internal' events are published in akka as public classes.
-<piotrga> We discussed it some time ago. And we reached the agreement that it is dangerous as they are internals and we are not prepared to expose them, as they are exposing the internals of implementation and break encapsulation.
-<RayRoestenburg> I've made them internal again.
-<RayRoestenburg> ah right. minimize exposure.
-<piotrga> thank you :)
