@@ -44,4 +44,10 @@ public class CollaboratorInformation implements LineExtractedInformation {
 		return null;
 	}
 
+	@Override
+	public String getParentProjectID() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -32,36 +32,36 @@ public class Main {
 		Mongo mongo = new Mongo("localhost");
 		DB db = mongo.getDB("msr14");
 		ProjectsAnalyzer analyzer = new ProjectsAnalyzer();
-		populate(db,analyzer);
+		loadData(db,analyzer);
 		saveDiscussions(analyzer);
 	}
 	
 	
-	private static void populate(DB db, ProjectsAnalyzer analyzer) {
+	private static void loadData(DB db, ProjectsAnalyzer analyzer) {
 		CommentsCollectionParser parser = new CommentsCollectionParser(db, MongoDBParser.PULL_REQUEST_COMMENTS_COLLECTION);
 		List<LineExtractedInformation> listInformation = parser.parse();
 
 		for (LineExtractedInformation info : listInformation) {
-			analyzer.addProject(info.getProjectID());
-			analyzer.addPullRequest(info.getAbstractionID(), info.getProjectID());
-			analyzer.addPullRequestComment(info.getCommentID(), info.getProjectID(), info.getAbstractionID(), info.getDeveloper(), info.getBody(), info.getCommitID());
+			analyzer.addProject(info.getProjectID(), info.getParentProjectID());
+			analyzer.addPullRequest(info.getAbstractionID(), info.getParentProjectID());
+			analyzer.addPullRequestComment(info.getCommentID(), info.getParentProjectID(), info.getAbstractionID(), info.getDeveloper(), info.getBody(), info.getCommitID());
 		}
 
 		parser = new CommentsCollectionParser(db, MongoDBParser.COMMIT_COMMENTS_COLLECTION);
 		listInformation = parser.parse();
 		for (LineExtractedInformation info : listInformation) {
-			analyzer.addProject(info.getProjectID());
-			analyzer.addCommit(info.getAbstractionID(), info.getProjectID());
-			analyzer.addCommitComment(info.getCommentID(), info.getProjectID(), info.getAbstractionID(), info.getDeveloper(), info.getBody());
+			analyzer.addProject(info.getProjectID(), info.getParentProjectID());
+			analyzer.addCommit(info.getAbstractionID(), info.getParentProjectID());
+			analyzer.addCommitComment(info.getCommentID(), info.getParentProjectID(), info.getAbstractionID(), info.getDeveloper(), info.getBody());
 		}
 
 
 		parser = new CommentsCollectionParser(db, MongoDBParser.ISSUE_COMMENTS_COLLECTION);
 		listInformation = parser.parse();
 		for (LineExtractedInformation info : listInformation) {
-			analyzer.addProject(info.getProjectID());
-			analyzer.addIssue(info.getAbstractionID(), info.getProjectID());
-			analyzer.addIssueComment(info.getCommentID(), info.getProjectID(),
+			analyzer.addProject(info.getProjectID(), info.getParentProjectID());
+			analyzer.addIssue(info.getAbstractionID(), info.getParentProjectID());
+			analyzer.addIssueComment(info.getCommentID(), info.getParentProjectID(),
 					info.getAbstractionID(), info.getDeveloper(), info.getBody());
 		}
 	}
@@ -78,7 +78,7 @@ public class Main {
 			activities.addAll(project.getPullRequests());
 
 			BufferedWriter bf;
-			bf = new BufferedWriter(new FileWriter(new File("/home/jarthur/workspace-msr/msr-challenge/data/discussions/uncategorized/" + project.getID().toLowerCase().replaceAll("/", "-") + "-comments.data")));
+			bf = new BufferedWriter(new FileWriter(new File("/home/jarthur/workspace-msr/msr-challenge/data/discussions/uncategorized/" + project.getParentID().toLowerCase().replaceAll("/", "-") + "-comments.data")));
 
 			for (ProjectActivity projectActivity : activities) {
 
@@ -89,7 +89,7 @@ public class Main {
 					if (comment.getBody()!=null && !comment.getBody().isEmpty()) {
 						String clean = cleanComment(comment.getBody());
 						if (clean.split(" ").length > 2) {
-							bf.append(comment.getDeveloper() + " " +  projectActivity.getID() + " " + clean);
+							bf.append(comment.getDeveloper() + " " +  project.getParentID() + " " + projectActivity.getID() + " " + clean);
 							bf.newLine();
 						}
 
@@ -98,8 +98,8 @@ public class Main {
 				}
 
 			}
+			
 			bf.close();			
-
 		}
 	}
 

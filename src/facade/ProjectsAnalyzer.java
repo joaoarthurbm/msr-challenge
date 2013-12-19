@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import model.Comment;
@@ -28,8 +27,8 @@ public class ProjectsAnalyzer {
 	}
 	
 	
-	public void addProject(String id){
-		if (this.projects.get(id) == null) this.projects.put(id, new Project(id)); 
+	public void addProject(String id, String parentID){
+		if (this.projects.get(parentID) == null) this.projects.put(parentID, new Project(id,parentID)); 
 	}
 	
 	public void addIssue(String issueID, String projectID){

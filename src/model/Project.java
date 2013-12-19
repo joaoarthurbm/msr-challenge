@@ -20,18 +20,20 @@ public class Project {
 	private Map<String, Commit> commits;
 	private Map<String, PullRequest> pull;
 	private Set<String> collaborators;
+	private String parentID;
 
 
-	public Project(String id) {
+	public Project(String id, String parentID) {
 		this.id = id;
 		this.developers = new HashSet<String>();
 		this.issues = new HashMap<String,Issue>();
 		this.commits = new HashMap<String,Commit>();
 		this.pull = new HashMap<String,PullRequest>();
 		this.collaborators = new HashSet<String>();
+		this.parentID = parentID;
 
 	}
-
+	
 	public void addDeveloper(String login) {
 		this.developers.add(login);
 	}
@@ -46,6 +48,10 @@ public class Project {
 	
 	public void addPullRequest(String pullID) {
 		if (this.pull.get(pullID) == null) this.pull.put(pullID, new PullRequest(pullID));
+	}
+	
+	public String getParentID() {
+		return parentID;
 	}
 
 	public Issue getIssue(String issueID) {
@@ -133,7 +139,7 @@ public class Project {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((parentID == null) ? 0 : parentID.hashCode());
 		return result;
 	}
 
@@ -146,10 +152,10 @@ public class Project {
 		if (getClass() != obj.getClass())
 			return false;
 		Project other = (Project) obj;
-		if (id == null) {
-			if (other.id != null)
+		if (parentID == null) {
+			if (other.parentID != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!parentID.equals(other.parentID))
 			return false;
 		return true;
 	}

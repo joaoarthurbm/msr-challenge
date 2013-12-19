@@ -152,18 +152,20 @@ public class CommentsCollectionParser implements MongoDBParser {
 			String[] split = htmlUrl.split("\\/");
 			
 			String projectID = split[3] + "/" + split[4];
+			String parentProject = null;
 			
 			if (!allProjects.containsKey(projectID)) {
 				
-				String cache = getParentProject(projectID);
+				parentProject = getParentProject(projectID);
 				
-				if (cache.equals("")) {
-					projectID = searchForParent(projectID);
-				} else {
-					projectID = cache;
+				if (parentProject.equals("")) {
+					parentProject = searchForParent(projectID);
 				}
 			
+			} else {
+				parentProject = projectID;
 			}
+			
 			
 			
 			// abstraction id
@@ -179,7 +181,7 @@ public class CommentsCollectionParser implements MongoDBParser {
 			String commitID = (String) next.get("commit_id");
 
 
-			linesExtracted.add(new CommentInformation(commentID,projectID,abstractionID,developer,body, commitID));
+			linesExtracted.add(new CommentInformation(commentID,projectID,parentProject,abstractionID,developer,body, commitID));
 		}
 
 		return linesExtracted;
@@ -210,9 +212,11 @@ public class CommentsCollectionParser implements MongoDBParser {
 			
 			// updating parents and children
 			if (this.allProjects.get(object.toString()) == null ) {
-				HashSet<String> s = new HashSet<String>();
-				s.add(projectID);
-				this.allProjects.put(object.toString(), s);
+				return searchForParent(object.toString());
+//				
+//				HashSet<String> s = new HashSet<String>();
+//				s.add(projectID);
+//				this.allProjects.put(object.toString(), s);
 			} else {
 				this.allProjects.get(object.toString()).add(projectID);
 			}

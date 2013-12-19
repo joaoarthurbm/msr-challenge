@@ -14,4 +14,6 @@ public interface LineExtractedInformation {
 	
 	public String getCommitID();
 	
+	public String getParentProjectID();
+	
 }
