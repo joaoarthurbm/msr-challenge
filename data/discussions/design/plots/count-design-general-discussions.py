@@ -1,17 +1,17 @@
 freq = {}
-for line in open('activity-category.data'):
-	activity = line.strip().split(" ")[0]
-	category = line.strip().split(" ")[1]
+for line in open('project-activity-category.data'):
+	tokens = line.strip().split(" ")
+	project, activity, category = tokens[0], tokens[1], tokens[2] 
 
 	if activity not in freq:
-		freq[activity] = category
+		freq[activity] = (project,category)
 	else:
-		current = freq[activity]
+		current = freq[activity][1]
 		if current == "general" and category == "design":
-			freq[activity] = "design"
+			freq[activity] = (project,"design")
 
 
 for k,v in freq.items():
-	print k, v
+	print v[0], k, v[1]
 	
 
