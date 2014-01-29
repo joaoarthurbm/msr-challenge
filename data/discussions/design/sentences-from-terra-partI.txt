@@ -1,0 +1,500 @@
+Did you send a bug report comment upstream or something because otherwise we are gonna have to fix this again with the next version of assimp;general
+SSL contexts shouldnt be reused across connections see So its probably more appropriate to pass in factories directly;design
+To create a Finagle Thrift service you must implement the ServiceIface Interface that a custom Thrift compiler generates for your service Scrooge wraps your service method return values with asynchronous;design
+I think its important to specify that the developer must implement ServiceIface and not Iface to make the example clearerisnotinvain that is a good idea;design
+btw if you want to retain the debugging information here its often useful you should probably either 1 use logging at a debug level or 2 pass a debug flag into the codec constructor;design
+How about to create a Finagle Thrift service you must use the custom Thrift compiler which can be found here regular thrift Iface interface a ServiceIface interface that wraps all return values in a Future which is required by Finagle;design
+If you want to make it overridable not declare it as static as override static methods many times give inconsistent behavior;design
+Youre hiding the SecureString dependency on allocatorsh by indirect include via serializeh;general
+makes sense here after the dependency is moved to class;design
+Without a doubt ideally there are no indirect dependencies anywhere but that would take a lot of knowledge about all files dependency fulfillment and usage;design
+Id rather avoid adding more dependencies in CAddrDB for something that isnt really used elsewhere;design
+This duplication is quite ugly Mikes refactor that moves these chaindependent constants to a separate class is nicer but you may want to check that it doesnt introduce new dependencies;design
+Well the remote routers need to handle the nodes setting which the local ones do not Hence there must be a translation between local and remote unless the RemoteDeployer would not use local parsing at all which is obviously even worse If that translation is part of the router interface so that the RemoteDeployer could do it generically then local routers need to know about their remote counterparts which is not possible due to cyclic dependencies between the packages;design
+We cant have external dependencies in akkaactor Therefore I have embedded the code You can continue work in your repository and we will copy it The long term goal is to push it down to scala library;design
+I changed the MultiNodeSpec to not depend on AkkaSpec or on a specific test framework and removed all dependencies to ScalaTest from the published artifacts;design
+The orgjboss dependencies shouldnt be present in the general interface;design
+Yes i struggled a bit with the dependencies here Do u think it would be better to send the publisher ref to the parent from core and start the metricstriggered on that;design
+Ill take a look at the ActorComponent and the Message dependencies when I have time;design
+True good catch Did think about it when I first saw the code to mention but thought FSM would mean more dependencies but now I see it is in akka actor;design
+This shouldnt be added into akka remote it should be a sub module to akka remote so people dont need the extra dependencies if they dont use rcl;design
+This implementation seems like there should already exist such a utility function amongst the dependencies try to find one and use that;design
+Im not a huge fan of adding dependencies even for tests can we avoid these;design
+Yes A FIXME should probably be added to the dependencies in AkkaBuild as well;design
+I think JavaLoggingEventHandler is a good thing An advantage over slf4j with jul is that it doesnt require any dependencies but I guess it solved some problem also;design
+Jut as a FYI comeaio will be dropped Ive added a ticket to move the things from orgjbossnettyakkautil to akkautil comtypesafeconfig will become an explicit dependency as well instead of an embedded one This will hopefully clean up the exportPackage;design
+Also there is an issue with Message dependency on CamelContext can you suggest any elegant way of getting rid of this dependency;design
+what is the advantage of this Base64 which adds another dependency over javanetURLEncoderULRDecoder;design
+You should also mention that you need to add akka remote as a dependency;design
+This is actually the simplest I could do to preserve the existing semantics An even better approach and one I want to do once someone can answer my questions on repercussions is to not dynamically depend on projects but to depend on the dependencyClasspath setting Using this we should be able to get all the dependent jars classpath directories and we can filter this to grab the relevant reference conf files Then were no longer used advanced sbt features and we might see more stability;design
+why is the kernel dependency needed;design
+I dont agree I think extensions should be registered on demand when first used Otherwise we have the dependency issue that ActorSystem need to know about all extensions or users need to configure all extensions they use;design
+Using ref single updatenewValue could be more efficient I know eliminating a read dependency can help in a DB transaction but not sure about in our STM implementation;design
+I need help with sbt as there are dependency conflicts;general
+The dependency on specs2 has been removed in order to lessen the pain of living close to scala master it would be great if you could check the plain text documentation and make that as good as possible instead thanks;design
+For the code changes: the current akka osgi module has the import for the org apache aries marked as optional so theres no runtime dependency preventing this from working in a plain OSGi environment but I can obviously separate that into a new module as well if you prefer And I can obviously make the changes to the public methods as well;design
+So akka testkit doesnt have a dependency on either ScalaTest or JUnit so the AkkaJUnitActorSystemResource is not part of the normal akka testkit;general
+Still getting rid of the hashmap in the selector can and IMHO should still be done This has no dependency on this PR however I will open a separate P for that change;design
+Looks great Patrik Since this is general purpose does it belong in util Or does that introduce an unwanted dependency on dispatch;design
+named parameter would make it more readable isClient false;design
+No this reads fine Using List or Vector as arguments is more readable It's only in the case where there is an explicit conversion that I think it needs to be overstated;general
+I prefer to[immutable.Seq] even though you get the same thing The intention is more readable This is the only place with to[Vector] that I could find;general
+I think that piece of code is deceptive Can we make it more readable;general
+I don't understand why this would be less readable but it's up to you;general
+in what way is this more readable than the original;general
+while I like short variable names here they are part of the API by being parameter names I recommend using slightly more readable ones cid particularly but I always confused by snr too I always think of signal-to-noise-ratio;design
+can this be written in a more readable way;general
+I prefer the code to be correct and readable first when we see that that is a performance problem we’ll fix it but not before;general
+can you use these constants in receiveGossip would make things more readable;general
+please reformat these to be more readable;general
+This split makes it all much more readable Very nice;general
+well let me explain where I come from this is for logging and the output should be useful for the one seeing it raw millis are not useful offsets are also not really useful because all those calculations in the head are not easy Hence my conclusion that if we include something then it should be human-readable;general
+I had a match before but it really doesn't add any value since I don't need the cast anywhere So I found the single isInstanceOf actually a bit more readable;general
+You're right That is unreadable without syntax highlighting;general
+Probably not I can expand it into two cases if that's more readable;general
+I actually find the case m MemberDowned MemberRemoved more readable;general
+I patched the CSS to make this readable in HTML but non breaking spaces are probably better Although they could mess with wrapping;general
+My experience is that looks unreadable for multi-word things but I have not tried it together with;general
+The benefits are more readable failure messages and two lines less could be used through-out;general
+this section is basically unreadable it would greatly benefit from some white space;general
+Looks great A lot nicer more readable and intuitive;general
+Very nice test I love how these multi-node tests becomes much simpler and more readable than the in-memory counterparts Also that a language and set of patterns for how to write these is emerging;general
+This is a actually a chapter that would be more readable if split into Java Scala since it's more sample than text;general
+But I also try to limit the scope of the ticket I already did some cleaning to make it easier readable;general
+You can make this more readable by using the implicit conversion available in;general
+Yes I'll add that to the comments so things might be more readable;general
+please somehow demarcate the end of the constructor arguments given scalariform indentation rules this probably means adding an empty line;general
+In doc code we have switched to 2 space indentation for java code also and line breaks after some 70 chars unsure about the exact number;general
+please fix indentation;general
+I'd add some indentation of the whole config and fix formatting of next line;general
+Nah it looks like you've changed indentation;general
+This is a bit half baked isn’t it Either do it fully with nice indentation or leave it on one line;general
+someone broke you indentation;general
+Are you gonna blame Eclipse for this hideous indentation;general
+Wrong as in 3chars or wrong as in the code block has wrong indentation;general
+wrong indentation;general
+yes and I think scalariform indentation will be wrong if placing it above the case;general
+indentation;general
+indentation braces fixed Ready;general
+Why 4 spaces indentation mixed with 2 Matters since it is part of docs IMHO;general
+Use 2 spaces indentation below;general
+So it appears that this singleton scheduler serves some purpose;design
+I still think it would make sense to take and stash handOverData during the entire lifetime of the singleton;design
+that would not be a very well behaving singleton should be documented;design
+Should it be ClusterSingletonManager and the child is the actual singleton;design
+that would not be a very well behaving singleton should be documented;design
+a factory which can be instantiated without constructor arguments;design
+same thing at other places that use props factory method pattern;design
+At some point I added factory methods for message to CamelExtension so messages could only be created from camel instance which should be available from every actor;design
+Shouldn't this use the systems threadfactorys ClassLoader;general
+This will be used automatically if you use the factory method do not pass in a loader and the context loader is non null;design
+A factory to create MessageQueues for an optionally provided;design
+From user api its Companion object providing factory methods;design
+I think this should be accompanied by a factory which accepts and has the appropriate WARNING signs uses;design
+Why different order of args in this factory method compared to the constructor;general
+I would recommend offering a static factory method which takes an and makes such a top-level supervisor and then an method which takes a supervisor message;design
+instead of an the factory method should take an so that you can also create the supervisor below another;design
+You may in your class extending ActorSystemActivator override the getActorSystemConfig;design
+if we make Actor an abstract base class we will break literally every user code base that exists;design
+Should this class be public;design
+Should this class be public;design
+can you change seenBy and getSeenBy to private That should only be internal api;design
+We could store things in a WeakHashMap to not leak classes and class loaders;general
+That is handled by the caller This class has no access to settings;general
+The Send class here is intentionally mutable (through the ByteBuffer) because we want to work with a single instance until its buffer has been encrypted completely;design
+Why is MixMetricsSelector both a case class and a case object and the case object neither extends the class nor returns a cached default value Is MixMetricsSelector case-class mutable I vote for removing the case object MixMetricsSelector;design
+created a separate class for SystemGuardian;design
+Should we put this in the base class so we do not need to override it and type the same thing every test We can still override if needed;design
+The two other constructors have been added to allow Java users to use the ActorSystemActivator but if you want this third option to be available for Java users as well I'll refactor this class to have a protected strategy method that people can override to achieve the same goal;design
+should this be public;design
+yes this should be public exposing the class was the whole point of the refactoring;design
+Should we put this in the base class so we don't need to override it and type the same thing every test we can still override it;design
+This is not supposed to be used externally but it is not clearly marked as such;design
+That method signature change is package protected so it's not reachable;general
+As we talked about it should use an ExecutorServiceConfigurator so it can be managed externally;design
+this class is an internal structure EndpointRegistry This is only used by EndpointManager who does the check and who gets the Quarantine command from the external worlds;general
+True will make public again On the other hand we have other places which require external implementors to put their code in the akka package;design
+No this is cheating by using low-level API that shouldn't even be exposed;design
+Since the SelectionHandler ref is not exposed to the user the only ones who can potentially call assign a watch are ourselves control for what actors we are seeing Terminated events which are only children;design
+Method is exposed to subclasses to be able to implement custom routers based on mailbox and actor internal state;design
+is not existenceConfirmed also an implementation detail that should not be exposed to users;design
+Would it be possible to make actor accessible in the public API;design
+I agree to this as the most important reason It gives us freedom to evolve the api without breaking user code;design
+we can add new methods to Context without accidentally breaking peoples Actors;general
+Why do we want to make the user type more by removing all the methods from Actor;general
+Why does it return a RoutedActorRef leaking implementation detail;design
+Should this class be public;design
+Should probably use composition instead of inheritance;design
+UnsupportedActorRef already implements ScalaActorRef;design
+Is this a public method intended for end-user usage;design
+RoutedActorRef is going to be a part of the API just like the LocalActorRef where you can do Router specific stuff on like adding removing;design
+Why does this class extend ScalaActorRef;design
+But to do a redesign on this part I do not consider a part of this already to big task we both agree upon that the current approach is not very extensible;design
+Should this class be public;design
+If it should be part of the Api like the LocalActorRef or the RemoteActorRef it should But I do not like making abstract classes part of the API instead of interfaces;design
+This is how it is implemented in the ClusteredActorRef the design of the RoutedActorRef was based on;design
+Can not that be solved with overloading;general
+Not through these methods I suggested that the current design is not very extensible for this reason but that is how it was modelled with the ClusterActorRef based on It certainly isn not the way how I would have modelled it;design
+I'm still unsure if we should expose implementation details or not we should discuss it;design
+think the doc tests should be updated to not use isTerminated;design
+I still think the doc tests should be updated to not use isTerminated since that is user API;design
+One reason to not use Akka actors could be that the Akka actors may be dependent on the Index class If the test class is dependent on Akka actors;design
+Any internal usages that should be updated;design
+I think the deprecation and the refactoring should be kept separate as one is changing user API and one is internal implementaiton details;design
+Create another ticket if you do not want to change the internals;general
+I agree that this shouldn't be exposed at all it still best way to avoid reinventing the wheel is to use the BatchingExecutor;design
+is SchedulerException ever exposed to users Make it private;design
+The events need to be private and should not be exposed They are for internal use only Users can use awaitActivation methods from Activation;design
+I will make it private to not confuse users It is just that other internal events are published in akka as public classes;design
+ok if I make it private;design
+it does not have to but it is only used here close connection to the binarySearch I can make it private if you prefer that;design
+No I mean it is in the camel.internal package and is private since it is for the ActivationTracker put in the ActivationTracer companion and make it private;design
+Might be dangerous in the wrong hands Feel free to remove it;design
+We discussed it some time ago And we reached the agreement that it is dangerous as they are internals and we are not prepared to expose them as they are exposing the internals of implementation and break encapsulation;design
+Seems a bit dangerous to me it can go in for now but in the future it might make sense to think about a cleaner way of FSM composition;design
+This is the most dangerous initialization pattern presence of circular dependencies;design
+The events need to be private and should not be exposed They are for internal use only Users can use awaitActivation methods from Activation;design
+I have made them internal again;design
+minimize exposure;design
+This whole structure is specific to this actor and should not be used anywhere else;design
+It is not the job of this structure to enforce that it makes sense to throw an exception in that case;design
+this message as well as all others underneath INTERNAL should not be publicly visible;design
+This should not be here this is specific to the TestTransport;design
+Can we solve all those in some more elegant way some implicit conversion that is only for internal use;design
+Since it seems to be used mainly for sending system message I think it's good enough if we make an internal utility method;design
+I would be surprised if this is the way to create class RoutedActorRefs;design
+No this is cheating by using low-level API that shouldn't even be exposed;design
+immutable IndexedSeq as api type Perhaps this is just internal;design
+this should go inside RemoteWatcher that use props factory method pattern;design
+well for these internal actors that are not intended to be remote deployed it must be better to define all props in the props factory;design
+I think a proper fix is to be able to pass in a ClassLoader to createActorSystem it should not default to class this overrides Thread.getContextClassloader;design
+should we make it to make it consumable for java otherwise these should be INTERNAL API;design
+It should then be marked as INTERNAL API it is public from java;design
+The reason for private is that it is used by the RecoverOnRestart class will become either INTERNAL API or private;design
+What about moving the above preStart implementation to Processor and make it final so that concrete processors can only override preRestartProcessor;design
+How about moving these into akka util;design
+concrete processors should override preRestartProcessor and postRestartProcessor if needed;design
+Is there a reason for exposing CompactByteString and ContByteString as return types of the public api should not be a concern to the user just like users should not need to deal with Map1 A user should never be using the CompactByteString object as the ByteString object should be creating compact ByteStrings but the abstract ByteString class should just be returning ByteString;design
+I wanted to ByteStringCompact next to ByteString1 and ByteStrings to keep the three implementations together and so that ByteStringCompact has access to things which are private though currently the critical stuff is all private;design
+Should this create the Props only Passing ActorRefFactory if actor context and potentially using it in the wrong place outside the actor;design
+I understand the issue of using an actor context in the wrong place but can you prevent that at all an actor could reply the context to a sender the context is then used in the onSuccess callback;design
+currentMessage won't be called if users follow the msg approach discussed It will be called only if users create new outbound messages via This could be another good reason to recommend the msg approach inside processors;design
+There should also be a section about the actual ask change move from ActorRef to pattern;design
+think some more things are needed in the migration kit Add the needed implicit conversions in OldActor so that existing code works inside actors;design
+Add needed implicit conversion in this package scala file so that existing code works outside actors;general
+Document as internal and make final;design
+We can not really get away from exposing Node if we move it into a field instead but the problem is that there is no getAndSet on Unsafe so it can not use LOCK So I will move in isEmpty into AbstractNodeQueue and add count;design
+I would definitely recommend making DeadLetterActorRef a subtype extend of EmptyLocalActorRef and remove DeadLetterActorRefLike;design
+why is this class public and not documented guessing this should be private and documented as internal users will be able to use private;design
+any risk with that we can not change this one would it be possible to move to context;general
+protected or prevent subclassing by user code;design
+I think this class can be private;design
+ActorRefProvider does not expose a reference to its ActorSystem which is a good idea because of initialization order;design
+A factory to create MessageQueues for an optionally provided ActorContext;design
+protected is weaker than protected so what are you saying Subclassing applies to ActorSystem or ActorCell;general
+I do not see any value in hiding it The rest of the ActorPath handling is also not private;design
+So you do not want people to implement MessageDispatcher;design
+it probably makes more sense to mark as private packages these classes provide the most convenient way for passing along the correct;design
+eaio will be removed I have added a ticket to move the things from org.jboss.netty.akka.util package to akka.util package;design
+config package will become an explicit dependency as well instead of an embedded one clean up;design
+We will make them package protected;design
+Are the things from netty package only used internally or should they be exposed in the API If just internal you could consider to put them into akka util package;design
+I suggest to just wrap in a RemoteTransportException and rethrow and let the layer above decide if it should be logged or not;design
+Just wrap in a RemoteTransportException and let the caller decide if it should be logged or not;design
+This should be private and be documented as internal api;design
+Should not getChild be only in UntypedActorContext;design
+ActorCell class must implement both and ActorContext does not expose the Java variant;design
+This should be pulled out of the trait since it is a constant put move in some object;general
+These should be in a companion object like usual;design
+Should not this be in a companion object;design
+If the extension you have a reference to ExtendedActorSystem;general
+LoggingAdapter does not belong in akka package class If you want to log directly then you should use that api directly;design
+it allows the Akka Logging API to be used outside of Actor systems;design
+An advantage is that it does not require any dependencies;design
+Instead of directly calling into the ConcurrentSocketActor through methods like connect bind you should send messages to the actor;design
+you are calling out to the methods of the Actor which is a violation of the ActorModel model why not put the connect methods inside the funciton they used internally in the actor;design
+they are only invoked from select and should not be invoked from any other site either inside or outside the actor;design
+so move them into the select function so that they are only reachable from within it;design
+I think it is better to create the actor inside the newSocket method and pass the supervisor into it;design
+this method is only ever used in receiveFrames you might as well move the method definition into receiveFrames;design
+will this be exposed in some way in Spray to serve static content;design
+do we need to expose this in ActorRefProvider interface;design
+Since this is all so similar and now in quite a thought through state I am going to take a crack at refactoring it to one generic solution;design
+reverted to the original code still like to have some comments to those Providers though since these design desicions are undocumented;design
+LGTM;general
+LGTM;general
+LGTM;general
+Nice Would the code be clearer if the run-method would be named differently;general
+Nice catch;general
+Nice one;general
+Nice catch If we leave it a weak limit then we should document it;general
+Nice catch;general
+I can rename it to initialiseAndGetSSLHandler or more verbose;general
+Avoid this branching here by concating the empty list in case it is not defined and a List with the one item if defined;general
+I would not check for nulls here;general
+I would probably escalate this as this is a serious security issue;design
+I do not really like methods with innocent sounding names like getX that do a whole lot more than just getting something;general
+Any suggestions as how to improve on this;general
+Good rename;general
+Will rename to Settings;general
+this reads a bit too generic should we rename Message to Persisted;general
+Weird if the test passes;general
+this test name suggests more than the test actually verifies;general
+this is a neat test harness;general
+We should enumerate which tests we need;general
+This may be the cause of the instabilities we have seen with the tests We have already got rid of most of the isTerminated but this instance was forgotten;general
+without it this test fails;general
+Let us verify that again but I think it had something with test protocol not registered which is a good error to log;general
+then I misunderstood the error message I will revisit that and probably have to delete that test or do you have a suggestion of how to test;general
+has it been tested on linux;general
+first run on jenkins was successful which does not mean that it is fixed but anyway a good start;general
+I have run the test locally hundreds and hundreds of times without being able to reproduce it;general
+Added a test that will start failing when this bug is fixed;general
+we never loop around when order becomes Concurrent so it can not really be that here;general
+That is the beauty with actor logging you do not need to get the loop on the same stack;general
+What about returning 0 here to handle potentially enqueued commands It is not immediately clear to me that this can not be an infinite loop in the worst case;general
+alright do you prefer to do the removal inside the above loop;general
+ok we will keep the test I have changed the loop count Will merge;general
+Closed is for we do not have an underlying transport yet while WaitActivity is for we are waiting for activity on the underlying transport Incoming connections logically start out in the second stage the first stage happens unbeknownst to us;design
+It will probably change the order on the class path while running the testkit tests but it has no effect and is not intentional Just residue from the first rewrite;general
+SIGAR returns 3 while jmx returns 1 There is no requirement to return 1 or 3 and one minutes is good;general
+The variant Viktor proposed will actually run the refresh() while I was referring to making the sending of RefreshCache messages recurring While those messages could potentially pile up running the refresh job should be fine if it is done synchronously I still think that the scheduleOnce approach is the easiest to grasp and also it does not leave state lingering around which needs to be cleaned up;design
+Not likely but lets open a ticket about fixing all such occurences separately;general
+so if someone sends this a buggy message we do not want it logged in unhandled;general
+found the bug in the throttler;general
+still smells like a bug is hiding in there somewhere;general
+This fix is still relevant because you expect to be able to call getBodyAs several times with the same result adding a debug log stmt should not break things;general
+Always good idea and indeed found a bug Two more tests are in now;general
+we normally use unique names of the barriers to simplify debugging and this tests had already one;general
+t does not check if it is an event it could be some stray message and then it will not get sent to unhandled and it is hard to debug;general
+I would probably log the exception at debug level;general
+No It is a bug... Sigh;general
+that is a bug and a actually a very stupid one It is duplicated further;general
+ouch debug residue;general
+Debug residue removing;general
+Debug residue removing;general
+I am using a debugger to see what is going on Will do proper debug logs next;general
+Removed Was only used for debugging;general
+bug I fixed it for the cause case but not the my no cause case;general
+To aid in debugging might be nice to know why the message did not get through;general
+Because newMemberSet is a Set but I need it to be a SortedSet See the comment about bug in Scala There is no CanBuildFrom for SortedSet;general
+mistake by me changed from debug when debugging fixing now;general
+very strange indeed It would be possible to work around that compiler bug it is adding the generated closure to the public static members but it is broken presumably because it is indeed nested within the by using lazy val but that is too expensive for this minor wart;general
+BTW it is worth mentioning here that those log at DEBUG level and you must enable debug log level with;general
+Should include more debug info which consumer;general
+Might want to include some more debug info about which actorref did not manage to activate within how long;general
+It is scalariform Only happens for align parameters setting which we use I filed a bug;general
+othewise it is a bug in the scheduler;general
+Yep good idea I used that block for debugging at one point which is why it is so verbose;general
+Also you have a bug you a preprending that to that instead of this which means that you are lacking a test;general
+no this was not the bug but this is clearly not correct it should do records.filterNot(_.observer == observer);general
+this does not really prune anything is this the bug you meant;general
+Nice catch That was a subtle bug;general
+I was looking for a way to reduce unhelpful logging output without disabling stack traces completely so that for certain debugging cases users can turn it back on ideally without needing to recompile;general
+can not we change this Array to this bug is just another sign that the small performance advantage of array when parsing the original string is not worth it;general
+It helps debugging and no security is violated as there is none;design
+I like this name change;general
+Just looking at the property name I thought it was something else I was thinking timeout on the sender side that it expects the ack within this timeCould we use something else than timeout flush;general
+String.valueOf(rawValue);general
+Yes make sense also for IndexedSeq above;general
+pattern match since you are grabbing the values anyway;general
+please move comment before if to make it align properly;general
+If we make it optional then we would have to require either an id or a manifest to be able to deserialize the message;design
+The problem is not reproducible with this fix the problem will be easier to debug if it manifests again;general
+The return value is only used in one place line 195 where the whole bug fix originated;general
+bug fixed;general
+I introduced a bug in previous refactoring I will update test and fix;general
+So I conclude that the bug is fixed until proven otherwise;general
+I have addressed almost all review comments so far some of the triggered some more major refactoring See the above commits I will continue the work on the actual router next week;design
+I have added instructions to the comments Changing how this is generated is ticket;general
+I hope not that is an interesting test to join when already joined please create a ticket;general
+Yeah we have already talked about that If there is not a ticket already add one;general
+no it is the same for all but that is a possible improvement as mentioned in the comments about DataStream;design
+Absolutely Will add comments;general
+since I feel a lack of comments from my side on this PR is not acceptable I have no choice but to say;general
+Same comments as above;general
+Excellent thanks Please create a branch off of master and open a pull request with the renames comments;general
+Thanks for the review Ronald I will pick up your comments tomorrow morning;general
+I think these comments were left over from the previous pull request;general
+Ok that is probably a good idea There are too many comments here now to see what is what;general
+No need just do as the comments that follow say;general
+we actually tend to fix up such things by amending the commit and pushing with github is smart enough to figure it all out keeping the PR history and comments intact;general
+Updated according to review comments;general
+All comments have been addressed Should be picked up by the Kitteh;general
+Aside from last batch of comments LGTM;general
+I have not followed the problems so I do not have any valuable comments here;general
+Thanks for the changes I added some minor coding style related comments I vote for merging after those have been applied;general
+ok I have removed the vals but want comments so some curlies and newlines;general
+we have a convention to use square brackets around variables in log and exception messages;general
+we have used BeforeAll and a static system variable at some other places;design
+I think our convention is to use around variable data in log messages at least Jonas has pointed that out for me;general
+while I like short variable names here they are part of the API by being parameter names I recommend using slightly more readable ones;general
+A closure is a lambda expression with free variables which are bound to the enclosing lexical context the core feature is that it transports these bindings out;design
+our convention is to enclose variables in square brackets in log and error messages;general
+the if expressions could now be inlined I think that was not previously the case because everything was on two lines;general
+Done although personally I do not like nested expressions so I keep the 2 step approach But  I have simplified the toString stuff;general
+If you mean negative delay not negative drift then the max 1 guards for negative delay in the expression;general
+I agree better remove all custom control structures and use normal if expressions the gain of the custom syntax is not worth its own cognitive weight;design
+the if expressions could now be inlined I think that was not previously the case because everything was on two lines;general
+btw I do not know what is considered a complete rewrite While the structure of my code is very different the getNextState method is the same and the vectors cclass and states are just the evaluated versions of the original ones that had expressions there;design
+This val could be eliminated by just moving the expression into the first call of offerElement eliminating the risk of the nanos val being improperly used in the code block;design
+the local def was only used to get around the old clunky syntax can make it nice and slick in one expression now;general
+Only used in one place inline expression there;general
+The flow method acts as the delimiter of flow expression composition;design
+Type in expressions to have them evaluated;general
+Is this line safe;general
+Sorry I was looking at the wrong word yeah for the may in line 82 I leave it as is;general
+I meant to ask why this line is not moved three lines up;general
+I think that is problematic from the command line script;general
+header line here;general
+this header line is wrong remove;general
+I would suggest switching to either Vector or a mutable append data structure to avoid reverse on line 28;general
+I will remove my link and see if the docs still build If they do then we can probably get rid of that line altogether;general
+Is not there a stray in the line 10 TimeUnit SECONDS;general
+Why this line here;general
+look on the line above also checked when reading the config;general
+when using one parameter per line it is preferred to start the first one on a new line;general
+Yes no extra line there either;general
+Ideally line breaks should be done virtually by formatting in your editor Since that is not the case I do not think we should sacrifice readability for people using unix terminals 120 is a good modern limit;general
+it looks like you have some auto line break setting that does not match our conventions 120 char lines are ok;general
+that was a strange link conversion it starts on line 203;general
+This line does not do anything;general
+Does this empty line somehow contain secret information is it some side channel 429 what do these primes tell us;general
+This line makes 0 sense to me;general
+And the line you are commenting on does not make sense;general
+Can you change your commit message to match the usual Akka conventions;general
+Lift naming conventions are quite inconsistent so the association between or and is probably much weaker than with Option In any case the Lift community is a strict subset of the Scala community so or is an improvement over;design
+I see no difference for java and scala for these formatting conventions;design
+this formatting looks a bit surprising parenthesis structure I would suggest keeping all of createInstanceFor on the first line and start the next with recover;general
+this if else has somewhat misleading formatting;general
+of course you do not need to undo these formatting changes;general
+I would add some indentation of the whole config and fix formatting of next line;general
+use the logging formatting instead;general
+I think I messed that up Later on the reformatting did not do this;general
+wrong the changes are probably some auto formatting thing in IntelliJ;general
+automatic formatting perhaps;general
+I assumed so and I did not pay that much attention to formatting;general
+I could not find anything about reformatting MDC values so this will just print a mildly meaningless 10 digit number What we can do is to print the time of day in UTC side stepping the expensive calendar formatting issues This will usually be well correlated with the SLF4J timestamp because the delay between the generation of the Event and the call to log should not be that long;general
+True but I do not want to waste CPU formatting something that might not be used and then the user can not really reformat easily;general
+is this formatting looking good;general
+this is an automatic formatting by scalariform in eclipse only when there is;general
+I thought I had done that but some reformatting or automatic importing must have messed it up again Will fix;general
+LGTM apart from some formatting;general
+Added documentation and fixed formatting;general
+LGTM apart from the formatting;general
+Apart from formatting LGTM;general
+Could you revert this formatting change;general
+Nice formatting change Should switch to the FSMDocTest approach because that still leaks when tests fail;general
+this file should have worked without reformatting as far as I can see reformatting it is fine but want to be sure you did not reformat because the parser was upset about the original;general
+ouch I blame my scrapped Eclipse workspace for losing this piece of configuration;general
+we have those to be able to run tests directly inside Eclipse when the scalatests runner is working we will remove all of them;general
+yes it looks a lot more funny outside of Eclipse;general
+imports at top of file is normally something I just want the IDE to take care of and Eclipse does not do this kind of multi import but I have changed it for you;general
+Are you gonna blame Eclipse for this hideous indentation;general
+eclipse formatting due to the;general
+eclipse scalariform will reformat this line because of the;general
+looks magic and fragile and eclipse does not understand it but if it is not possible then just ignore my comment;general
+Can you reach Maven have a branch that ports Zipkin over to using Maven Would that help Its not fully functioning yet so itd take a bit more time to get it ready for release;general
+mental note fix grammar below;general
+Yeah Ive got a second patch that just puts a hardcoded check in IsStandard;design
+Is this LOCK really necessary;design
+Good idea Maybe make the 7 day window a command line flag;general
+Portefeuille isnt capitalised elsewhere;general
+some comments in the code would be appreciated;general
+Is this a patch for this one;general
+Couldnt this just as well be patched on the BitcoinQt side to avoid rebuilding boost If the problem is just the startup time then why does the version that doesnt care about startup time not work;general
+Could you explain what your patch does or changes in comparison to the legacy code;general
+I observed the same strange GUI freeze again under some special circumstances;general
+Might be a good idea to create a file with settings constants Perhaps separate files for network rule configuration and for node resource utilization configuration;design
+What happened here I thought I saw this patch as a pull request before;general
+I do a manual edit of the translation file with Qt Linguist so that no unfinished tags are present;general
+IMHO you should take a look at 2991 and merge that before merging this pullrequest as that would be easier for translators;general
+Its exactly the same in this case I have no preferenceif you have elifs you can only use if definedXXX as there is no elifdef;general
+That string causes an error when trying to translate it on Transifex I guess because of the code tag;general
+You could assert here;general
+Will this commit be available in the staging tree;general
+Very nice Can you add a comment above the static vars in checkpointscpp so we remember how to get them the next time we add a checkpoint;general
+Why two at the same indentation;general
+Is this a bugfix or new feature;general
+See as part of which accomplishes the same thing in a slightly more versatile way;general
+Some indentation issues here and below 4 spaces;general
+Could be but is that important here I see the referencepassing stuff as important in the case of computeintensive code and huge objects where a copy op is expensive critical for a lot of blockchain stuff not so in the wallet;design
+I was wondering about that and tested with gcc before putting in a goofy return notreached GCC doesnt complain;general
+Ill push a new commit to fix these and now Ive got Eclipse set to use spaces for tabs properly I hope;general
+As I said just a feeling and Im no native english speaking person;general
+There is also the operator to act like a logical OR operator joining together a number of conditions and requiring only one of them to be;general
+What am I doing I read the exact same document Will update to use the operator;general
+Not loving this If I get rid of the compile warnings then I get a dirty tree and I know sooner or later Ill accidentally commit;general
+sipa ACK to that suggestion;general
+Closing this issue as Im not sure its relevant if it is please reopen;general
+I recently took a look at Boost 150 which was released a few days ago it seems they took a different approach to fix this;general
+Yeah getting rid of the monkey patch is even better;general
+I dont see how it could nontrivially prolong the initial sync on low resource nodes Im not arguing that it doesnt but tell me why you believe it does;design
+As I understand it if the node receives the transaction it has to look up all inputs which in this case dont exist;design
+10 potential performance improvement during bootstrapping or loadblock is not enough to justify the testing effort to make sure a change doesnt break anything in my opinion;general
+ACK but needs rebase;general
+It seems like that wasnt being used previously;general
+TheBlueMatt It IS used when compiling BitcoinQt on Windows directly via the project file Even if this was not used by us it is beneficial to users trying to build from source as a clear indication for static Boost 149 libs;general
+The substract fee from sent amount button is a nice idea They talked little about it;general
+Nice ACK on the codeMay need testcases though there are currently no testcases for CDataStream with SERGETHASH at all;general
+Closing as resolved;general
+The problem is not a corrupted downloaded file thats easy In your case the database is corrupted despite several systems which try to prevent ever getting an inconsistent state on disk;general
+Didnt have time to test it properly so far sorry Ill close it for now and I guess if someone else encounters this same problem upgrading we will be able to reopen it;general
+I actually uncommented that line yesterday while testing something and I wasnt even aware we had a blockprint function until I saw it conveniently in the code I was looking at;general
+A dev is free to close this when you want to keep it At least such a pull can lead to think again over certain parts in the code and thats also positive IMHO;general
+Really I can be a fucking damn nitpicker but that indentation thing could have been fixed Im thinking about never doing anything coding style related in core if that is what you guys want then winwin;general
+Mind that normal users dont have a clue what Qt is If you want to give it a name its the Satoshi client;general
+ACK tested clean builds of both bitcoinqt and bitcoind individually with custom CXXFLAGS;general
+Guess I didnt realize there were 2 spaces there Im getting old;general
+Its just generally good to avoid changing a line that doesnt need to be;general
+Can you call response reply to match the Rep type and keep the parameters in the same order of log;general
+Just wondering what was the reasoning behind removing the pipelineFactory field;general
+That could be the cause of the timeout exceptions Im now seeing with Finagle;general
+code style space between colon when specifying a type;general
+You should edit your plugins instead this way you dont pollute the repo;design
+Opened pull request;general
+I would like to see benchmarks against the normal MySQL driver as part of this effort For performance memory usage and CPU usage;general
+Hey sgarg take a look at the recent changes to finagleredis mosesn recently added a bunch of set and list commands If you have additional commands to add please open a new pull request Thanks;general
+Alright good to know Im working on getting us upgraded to whats current so probably at least one of these will pan out Thanks for the help;general
+Doesnt seem related to this patch;general
+Thanks a lot for the pull request It looks good all in all but we could make it even betterI would recomend to check if the buffer has an array;general
+Ah yeah I think that would be better Ill update the patch;general
+Ive updated the patch according to my last comment Im happy to update more if need be;general
+This should be fixed;general
+Glad to see youre contributing to the finagle community However I think that it would make more sense to keep feature separate for now Our team is very small and we unfortunately cannot afford to maintain every pull request with big new features that we receive I think that making this a separate library that integrates well with finagle is the best way forward;general
+What confuses me about it being intermittent is that the manual HTTP request works every time;general
+ThanksYikes this is an ugly bit of Synchronized in Scala might consider a more explicit approach too;general
+I pulled this internally you will see your commit soon in this repo Thanks;general
+We didnt implement the thrift transport in finagle but I remember reading on the mailinglist someone willing to do first;general
+Could you add comments in a similar style to the other functions And could you also add some test cases in ClientSpecscala for the new commands;general
+why not Nil;general
+why do you need the empty check;general
+use camelCase naming convention forceExpire;general
+after that looks good please merge;general
+It would be more scala idiomatic to use the apply methodcodecHttpLike;general
+Im concerned that this code is too functional at such a low level I can imagine it being a hotspot Obviously we will see when we do performance testing but usually you want Clike code when doing operations like this one to avoid a lot of CPU and memory overhead;design
+Need an explicit charset I suggest that we require UTF8 on both sides;general
+When tuples arent natural use sequence the statements instead While correct it isnt obvious to the reader;general
+lets measure first cut later id like to focus on correctness and clarity first then performance later and of course to make sure that the codec isnt structured in a way that wouldnt allow us to squeeze all the performance we can out of it later;design
+Im not sure if we can assume that error codes and messages are in ASCII;general
+Constants should start with UpperCase this is actually not only a matter of style but the pattern matching does not bind uppercase names so it allows you to match against constants;general
+As suggested above better to enforce UTF8 both ways;general
+That makes sense I agree it would need more work to be more robust and safe But if you dont think it is worth having we can scrap it and let the user explicitly build the queries;general
+constants are Capitalized;general
+Do I understand correctly that this conflates NULL and empty string by always translating empty string to None If a legitimate empty string were returned would it result in None and thus be indistinguishable from NULL That would not be a good thing;general
+Blank string and SQL NULL should never be conflated;general
+My goal is to make sure that the tests are deterministic Without adding some predictability to the rng the test will fail randomly which can be a frustrating experience;general
+updated the code to make count an option and adapted the tests;general
+I would change the type of count to int and change the default value to 1;general
+consistent styling no whitespace between tokens;general
+youre going to have to back out the README changes before I can merge perhaps put your README text in READMEmd;general
+You have to use sbt to build finagle see the README at are used internally and are not compatible with the github repo;general
+Thank you Im pulling this in internally should show up here soon;general
+this is just a case of finagle being too verbose im landing a fix for this today or tomorrow;general
+zhanggl this pull request is now up to date with the rest of finagle tested and should work properly I hope its useful to you;general
+another thing that would help me with trying to reproduce this is approximate failure rate of requests latency of requests and request concurrency;general
+have changed to your method the last one would have probably failed with nonenglish locales;general
+yes theres only linux targets by now creating a new project should set the default paths and since its using makefiles its fairly easyjust updated it so it doesnt complain about so many errors in the latest version;general
+oh sorry didnt saw it had to fix it because the core wasnt compiling for me this morning;general
+hi what was the reason why you reverted the fix in ce9b22e038ca16b581a16722436327bef206cbdf with this commit;general
+cool thanks i also have a pixelbuffer implementation but my suggestion would be to rewrite all three implementations into a general purpose;design

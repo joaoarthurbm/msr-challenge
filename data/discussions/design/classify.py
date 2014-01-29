@@ -3,16 +3,16 @@ import logging
 import sys
 from random import shuffle
 from textblob import *
-from textblob.classifiers import DecisionTreeClassifier
 from nltk.corpus import stopwords
 from textblob import *
-from nltk import *
+from nltk.classify import *
 import itertools
 from nltk.collocations import BigramCollocationFinder
 from nltk.metrics import BigramAssocMeasures
 import collections
 import nltk.classify.util, nltk.metrics
 from nltk.classify import NaiveBayesClassifier
+from nltk.classify import DecisionTreeClassifier
 
 def remove_stop_words(sentence):
 	stopset = set(stopwords.words('english'))
@@ -104,55 +104,94 @@ def document_features(document):
 	return dict([(w, True) for w in document])
 
 
-def bigram_word_features(words, score_fn=BigramAssocMeasures.chi_sq, n=200):
+def bigram_word_features(words, score_fn=BigramAssocMeasures.chi_sq, n=20):
     bigram_finder = BigramCollocationFinder.from_words(words)
     bigrams = bigram_finder.nbest(score_fn, n)
-    return dict([(ngram, True) for ngram in itertools.chain(words, bigrams)])
+    #return dict([(ngram, True) for ngram in itertools.chain(words, bigrams)])
+    return dict([(ngram, True) for ngram in bigrams])
+
+
+def classifyAllData(classifier,logging):
+
+	for file_name in open(sys.argv[1]):
+        	short_file_name = file_name.strip().split("/")[-1]
+
+                logging.info('Classifying ' + short_file_name)
+                f = open('/media/old/jarthur/workspace-msr/msr-challenge/data/discussions/categorized/'+short_file_name,'w+')
+                for line in open(file_name.strip()):
+
+                        tokens = line.strip().split(" ")
+                        developer = tokens[0]
+                        root_project = tokens[1]
+                        activity = tokens[2]
+                        sentence = ' '.join(tokens[3:])
+
+                        logging.info('classifying: '+ ' '.join(remove_stop_words(sentence)))
+                        try:
+                                toWrite = developer,root_project,activity,sentence,classifier.classify(bigram_word_features(remove_stop_words(sentence))),"\n"
+                                toWrite = ' '.join(toWrite)
+                                logging.info('line classified: '+toWrite)
+                                f.write(toWrite)
+                        except ZeroDivisionError:
+                                logging.error('not classified ' + ' '.join(remove_stop_words(sentence)))
+                logging.info('File classified ' + short_file_name)
+                f.close()
+
+	
+def chunks(l, n):
+    return [ l[i:i+n] for i in range(0, len(l), n)]
 
 
 def main():
 	logging.basicConfig(filename='log-classifier.log',level=logging.INFO)
-	dataset = []
 	
-	lines = [ ( remove_stop_words(line.strip().split(';')[0]) , line.strip().split(';')[-1]) for line in open("sentences.csv", 'r')]
+	lines = [ ( remove_stop_words(line.strip().split(',')[0]) , line.strip().split(',')[-1]) for line in open("sentences-classified-by-me.csv.bkp", 'r')]
 	shuffle(lines)
-
-	for line in lines:
-		pair = (bigram_word_features(line[0]), line[1])
-		dataset.append(pair)
-
-	# check accuracy
-	train = dataset[len(dataset)/2:]
-        test = dataset[:len(dataset)/2]
 	
-	logging.info('Training classifier')
-	classifier = DecisionTreeClassifier.train(dataset)
-	logging.info('Classifier trained')
+	
+	dataset = []
+	for line in lines:
+                pair = (document_features(line[0]), line[1])
+                dataset.append(pair)
+	evaluate(dataset,"words")
+	
+	dataset = []
+	for line in lines:
+                pair = (bigram_word_features(line[0]), line[1])
+                dataset.append(pair)
+        evaluate(dataset,"bigrams")
 
-	for file_name in open(sys.argv[1]):
+	
 
-		short_file_name = file_name.strip().split("/")[-1]
+def evaluate(dataset,feature):
 
-		logging.info('Classifying ' + short_file_name)
-		f = open('/home/jarthur/workspace-msr/msr-challenge/data/discussions/categorized/'+short_file_name,'w+')
-		for line in open(file_name.strip()):
-			
-			tokens = line.strip().split(" ")
-			developer = tokens[0]
-			root_project = tokens[1]
-			activity = tokens[2]
-			sentence = ' '.join(tokens[3:])
+	kfold = chunks(dataset,100)
+	
+	mean = 0.0	
 
-			logging.info('classifying: '+ ' '.join(remove_stop_words(sentence)))
-			try:
-				toWrite = developer,root_project,activity,sentence,classifier.classify(bigram_word_features(remove_stop_words(sentence))),"\n"
-				toWrite = ' '.join(toWrite)
-				logging.info('line classified: '+toWrite)
-				f.write(toWrite)
-			except ZeroDivisionError:
-				logging.error('not classified ' + ' '.join(remove_stop_words(sentence)))
-		logging.info('File classified ' + short_file_name)
-		f.close()
+	for i in range(10):
+		train = []
+		if i == 0:
+			test = kfold[0]
+			for l in kfold[1:]:
+				for t in l:
+					train.append(t)
+
+		else:
+			test = kfold[i]
+			for l in kfold[i+1:] + kfold[:i]:
+				for t in l:
+					train.append(t)
+
+
+		classifier = nltk.NaiveBayesClassifier.train(train)
+		ac = nltk.classify.accuracy(classifier, test)	
+	
+		print i, feature, "NaiveBayes", ac
+
+                #classifier = nltk.DecisionTreeClassifier.train(train)
+                #logging.info("End of training tree " + str(i) + " " + str(nltk.classify.accuracy(classifier,test)))
+
 
 if __name__ =='__main__':
     main()
