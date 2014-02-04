@@ -104,38 +104,41 @@ def document_features(document):
 	return dict([(w, True) for w in document])
 
 
-def bigram_word_features(words, score_fn=BigramAssocMeasures.chi_sq, n=20):
+def bigram_word_features(words, score_fn=BigramAssocMeasures.chi_sq, n=200):
     bigram_finder = BigramCollocationFinder.from_words(words)
     bigrams = bigram_finder.nbest(score_fn, n)
-    #return dict([(ngram, True) for ngram in itertools.chain(words, bigrams)])
     return dict([(ngram, True) for ngram in bigrams])
 
 
-def classifyAllData(classifier,logging):
+def combined_bigram_word_features(words, score_fn=BigramAssocMeasures.chi_sq, n=200):
+    bigram_finder = BigramCollocationFinder.from_words(words)
+    bigrams = bigram_finder.nbest(score_fn, n)
+    return dict([(ngram, True) for ngram in itertools.chain(words, bigrams)])
+
+def classify_all_data(classifier):
 
 	for file_name in open(sys.argv[1]):
         	short_file_name = file_name.strip().split("/")[-1]
+		print "classifying " + short_file_name
 
-                logging.info('Classifying ' + short_file_name)
                 f = open('/media/old/jarthur/workspace-msr/msr-challenge/data/discussions/categorized/'+short_file_name,'w+')
-                for line in open(file_name.strip()):
-
+		
+                
+		for line in open(file_name.strip()):
                         tokens = line.strip().split(" ")
                         developer = tokens[0]
                         root_project = tokens[1]
                         activity = tokens[2]
                         sentence = ' '.join(tokens[3:])
 
-                        logging.info('classifying: '+ ' '.join(remove_stop_words(sentence)))
                         try:
                                 toWrite = developer,root_project,activity,sentence,classifier.classify(bigram_word_features(remove_stop_words(sentence))),"\n"
                                 toWrite = ' '.join(toWrite)
-                                logging.info('line classified: '+toWrite)
                                 f.write(toWrite)
                         except ZeroDivisionError:
-                                logging.error('not classified ' + ' '.join(remove_stop_words(sentence)))
-                logging.info('File classified ' + short_file_name)
+                                print 'not classified ' + ' '.join(remove_stop_words(sentence))
                 f.close()
+		"classified " + short_file_name
 
 	
 def chunks(l, n):
@@ -143,11 +146,19 @@ def chunks(l, n):
 
 
 def main():
-	logging.basicConfig(filename='log-classifier.log',level=logging.INFO)
 	
-	lines = [ ( remove_stop_words(line.strip().split(',')[0]) , line.strip().split(',')[-1]) for line in open("sentences-classified-by-me.csv.bkp", 'r')]
+	lines = [ ( remove_stop_words(line.strip().split(',')[0]) , line.strip().split(',')[1]) for line in open("sentences-classified.csv", 'r')]
 	shuffle(lines)
+	dataset = []
+        for line in lines:
+                pair = (combined_bigram_word_features(line[0]), line[1])
+                dataset.append(pair)
 	
+	classifier = nltk.NaiveBayesClassifier.train(dataset)
+	classify_all_data(classifier)	
+
+
+def runExperiment(lines):
 	
 	dataset = []
 	for line in lines:
@@ -160,6 +171,15 @@ def main():
                 pair = (bigram_word_features(line[0]), line[1])
                 dataset.append(pair)
         evaluate(dataset,"bigrams")
+
+
+	dataset = []
+        for line in lines:
+                pair = (combined_bigram_word_features(line[0]), line[1])
+                dataset.append(pair)
+        evaluate(dataset,"combined")
+
+
 
 	
 
@@ -187,10 +207,13 @@ def evaluate(dataset,feature):
 		classifier = nltk.NaiveBayesClassifier.train(train)
 		ac = nltk.classify.accuracy(classifier, test)	
 	
-		print i, feature, "NaiveBayes", ac
+		print i+1, feature, "NaiveBayes", ac
 
                 #classifier = nltk.DecisionTreeClassifier.train(train)
-                #logging.info("End of training tree " + str(i) + " " + str(nltk.classify.accuracy(classifier,test)))
+                #ac = nltk.classify.accuracy(classifier,test)
+
+		#print i, feature, "DecisionTree", ac
+
 
 
 if __name__ =='__main__':
