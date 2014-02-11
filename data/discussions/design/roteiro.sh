@@ -22,3 +22,17 @@ awk -F' ' '{print $1 " " $3 " " $NF " " $2}' * > ../design/data-to-plot/raw-deve
 cd $base/design/plots
 python generate-project-designers-commiters-proportion.py > ../data-to-plot/to-plot-project-designers-commiters-proportion.data
 
+# Desingers proportion boxplot
+Rscript plot-box-plot-designers-per-project.R
+
+# generate raw-developer-project-designactivity
+cd $base/categorized
+grep 'design $' * | awk -F' ' '{print $1 " " $2 " " $3}' | cut -d':' -f2 > ../design/data-to-plot/raw-developer-project-design_activity.data
+
+cd $base/design/plots
+python generate-project-developer-freq-amp.py > ../data-to-plot/to-plot-project-developer-intensity-amplitude.data
+Rscript plot-designers.R
+
+cp ../graphs/* /media/old/jarthur/Dropbox/doutorado/paper-msr-challenge-2014/graphs/
+
+

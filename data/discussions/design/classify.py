@@ -1,5 +1,6 @@
 # -*- coding: iso-8859-15 -*-
 import logging
+import datetime
 import sys
 from random import shuffle
 from textblob import *
@@ -145,7 +146,7 @@ def chunks(l, n):
     return [ l[i:i+n] for i in range(0, len(l), n)]
 
 
-def main():
+def start_classification():
 	
 	lines = [ ( remove_stop_words(line.strip().split(',')[0]) , line.strip().split(',')[1]) for line in open("sentences-classified.csv", 'r')]
 	shuffle(lines)
@@ -158,20 +159,26 @@ def main():
 	classify_all_data(classifier)	
 
 
-def runExperiment(lines):
-	
-	dataset = []
-	for line in lines:
-                pair = (document_features(line[0]), line[1])
-                dataset.append(pair)
-	evaluate(dataset,"words")
-	
-	dataset = []
-	for line in lines:
-                pair = (bigram_word_features(line[0]), line[1])
-                dataset.append(pair)
-        evaluate(dataset,"bigrams")
+def start_classifier_evaluation():
 
+	lines = [ ( remove_stop_words(line.strip().split(',')[0]) , line.strip().split(',')[1]) for line in open("sentences-classified.csv", 'r')]
+        shuffle(lines)
+	run_experiment(lines)
+
+
+def run_experiment(lines):
+	
+	#dataset = []
+	#for line in lines:
+        #        pair = (document_features(line[0]), line[1])
+        #        dataset.append(pair)
+	#evaluate(dataset,"words")
+	
+	#dataset = []
+	#for line in lines:
+        #        pair = (bigram_word_features(line[0]), line[1])
+        #        dataset.append(pair)
+        #evaluate(dataset,"bigrams")
 
 	dataset = []
         for line in lines:
@@ -180,15 +187,10 @@ def runExperiment(lines):
         evaluate(dataset,"combined")
 
 
-
-	
-
 def evaluate(dataset,feature):
 
 	kfold = chunks(dataset,100)
 	
-	mean = 0.0	
-
 	for i in range(10):
 		train = []
 		if i == 0:
@@ -203,18 +205,19 @@ def evaluate(dataset,feature):
 				for t in l:
 					train.append(t)
 
-
+		print datetime.datetime.now().time()
 		classifier = nltk.NaiveBayesClassifier.train(train)
 		ac = nltk.classify.accuracy(classifier, test)	
-	
 		print i+1, feature, "NaiveBayes", ac
+		print datetime.datetime.now().time()
+		
+		print
 
-                #classifier = nltk.DecisionTreeClassifier.train(train)
-                #ac = nltk.classify.accuracy(classifier,test)
-
-		#print i, feature, "DecisionTree", ac
-
-
+		print datetime.datetime.now().time()
+                classifier = nltk.DecisionTreeClassifier.train(train)
+                ac = nltk.classify.accuracy(classifier,test)
+		print i+1, feature, "DecisionTree", ac
+		print datetime.datetime.now().time()
 
 if __name__ =='__main__':
-    main()
+    start_classifier_evaluation()
