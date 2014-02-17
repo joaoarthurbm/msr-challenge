@@ -1,0 +1,13 @@
+project design description
+akka/akka yes "detailed description of internal design and how clients should use the tool"
+devtools/hadley no "nothing"
+ProjectTemplate/johnmyleswhite no "only for users"
+stat-cookbook/mavam  no "nothing"
+hiphop-php/facebook no "nothing" knitr/yihui
+shiny/rstudio yes "text descriptions of how to extend"
+folly/facebook yes "text descriptions of components and their constraints"
+ 
+
+
+
+
