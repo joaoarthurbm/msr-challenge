@@ -1,27 +1,27 @@
 project design description
 akka/akka yes "text description of internal design and how clients should use the tool"
-devtools/hadley no "nothing"
+devtools/hadley no "nothing explicit"
 ProjectTemplate/johnmyleswhite no "only for users"
-stat-cookbook/mavam  no "nothing"
-hiphop-php/facebook no "nothing" knitr/yihui
+stat-cookbook/mavam  no "nothing explicit"
+hiphop-php/facebook no "nothing explicit" knitr/yihui
 shiny/rstudio yes "text descriptions of how to extend"
 folly/facebook yes "text descriptions of components and their constraints"
 mongo/mongodb yes "text descriptions and diagrams"
-doom3.gpl/TTimo no "nothing"
-phantomjs/ariya no "nothing"
-TrinityCore/TrinityCore 
-MaNGOS/mangos 
-bitcoin/bitcoin 
-mosh/keithw 
-xbmc/xbmc 
-http-parser/joyent 
-beanstalkd/kr 
-redis/antirez 
-ccv/liuliu 
-memcached/memcached 
-openFrameworks/openframeworks 
-libgit2/libgit2 
-redcarpet/vmg 
+doom3.gpl/TTimo no "nothing explicit"
+phantomjs/ariya no "nothing explicit"
+TrinityCore/TrinityCore  no "nothing explicit"
+MaNGOS/mangos no "nothing explicit"
+bitcoin/bitcoin yes "detailed papers, diagrams and text about the design"
+mosh/keithw yes "paper describing design and implementation"
+xbmc/xbmc no "only descriptions about the tools involved"
+http-parser/joyent no "only for users"
+beanstalkd/kr no "nothing explicit"
+redis/antirez yes "design drafts"
+ccv/liuliu no "only for users"
+memcached/memcached no "nothing explicit"
+openFrameworks/openframeworks no "nothing explicit"
+libgit2/libgit2 no "nothing explicit"
+redcarpet/vmg no "nothing explicit"
 libuv/joyent 
 SignalR/SignalR 
 SparkleShare/hbons 
