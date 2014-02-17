@@ -22,15 +22,15 @@ memcached/memcached no "nothing explicit"
 openFrameworks/openframeworks no "nothing explicit"
 libgit2/libgit2 no "nothing explicit"
 redcarpet/vmg no "nothing explicit"
-libuv/joyent 
-SignalR/SignalR 
-SparkleShare/hbons 
-plupload/moxiecode 
-mono/mono 
-Nancy/NancyFx 
-ServiceStack/ServiceStack 
-AutoMapper/AutoMapper 
-RestSharp/restsharp 
+libuv/joyent no "nothing. only for users"
+SignalR/SignalR yes "text documentation on how to extend features"
+SparkleShare/hbons no "only for users"
+plupload/moxiecode yes "text descriptions about the design, APIs, and how to use them"
+mono/mono no "nothing explicit"
+Nancy/NancyFx no "nothing explicit. just tools used" 
+ServiceStack/ServiceStack  yes "architecture diagram overview"
+AutoMapper/AutoMapper no "nothing explicit"
+RestSharp/restsharp no "nothing explicit. just for users"
 ravendb/ravendb 
 MiniProfiler/SamSaffron 
 storm/nathanmarz 
