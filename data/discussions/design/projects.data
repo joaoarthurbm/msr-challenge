@@ -2,14 +2,14 @@ project design description
 akka/akka yes "text description of internal design and how clients should use the tool"
 devtools/hadley no "nothing explicit"
 ProjectTemplate/johnmyleswhite no "only for users"
-stat-cookbook/mavam  no "nothing explicit"
+stat-cookbook/mavam no "nothing explicit"
 hiphop-php/facebook no "nothing explicit" knitr/yihui
 shiny/rstudio yes "text descriptions of how to extend"
 folly/facebook yes "text descriptions of components and their constraints"
 mongo/mongodb yes "text descriptions and diagrams"
 doom3.gpl/TTimo no "nothing explicit"
 phantomjs/ariya no "nothing explicit"
-TrinityCore/TrinityCore  no "nothing explicit"
+TrinityCore/TrinityCore no "nothing explicit"
 MaNGOS/mangos no "nothing explicit"
 bitcoin/bitcoin yes "detailed papers, diagrams and text about the design"
 mosh/keithw yes "paper describing design and implementation"
@@ -25,71 +25,66 @@ redcarpet/vmg no "nothing explicit"
 libuv/joyent no "nothing. only for users"
 SignalR/SignalR yes "text documentation on how to extend features"
 SparkleShare/hbons no "only for users"
-plupload/moxiecode yes "text descriptions about the design, APIs, and how to use them"
+plupload/moxiecode yes "text description about the design, APIs, and how to use them"
 mono/mono no "nothing explicit"
 Nancy/NancyFx no "nothing explicit. just tools used" 
-ServiceStack/ServiceStack  yes "architecture diagram overview"
+ServiceStack/ServiceStack yes "architecture diagram overview"
 AutoMapper/AutoMapper no "nothing explicit"
-RestSharp/restsharp no "nothing explicit. just for users"
-ravendb/ravendb 
-MiniProfiler/SamSaffron 
-storm/nathanmarz 
-elasticsearch/elasticsearch 
-ActionBarSherlock/JakeWharton 
-facebook-android-sdk/facebook 
-clojure/clojure 
-CraftBukkit/Bukkit 
-netty/netty 
-android/github 
-node/joyent 
-jquery/jquery 
-html5-boilerplate/h5bp 
-impress.js/bartaz 
-d3/mbostock 
-chosen/harvesthq 
-Font-Awesome/FortAwesome 
-three.js/mrdoob 
-foundation/zurb 
-symfony/symfony 
-CodeIgniter/EllisLab 
-php-sdk/facebook 
-zf2/zendframework 
-cakephp/cakephp 
-ThinkUp/ginatrapani 
-phpunit/sebastianbergmann 
-Slim/codeguy 
-django/django 
-tornado/facebook 
-httpie/jkbr 
-flask/mitsuhiko 
-requests/kennethreitz 
-symfony/xphere-forks 
-reddit/reddit 
-boto/boto 
-django-debug-toolbar/django-debug-toolbar 
-Sick-Beard/midgetspy 
-django-cms/divio 
-rails/rails 
-homebrew/mxcl 
-jekyll/mojombo 
-gitlabhq/gitlabhq 
-diaspora/diaspora 
-devise/plataformatec 
-blueprint-css/joshuaclayton 
-octopress/imathis 
-vinc.cc/vinc 
-paperclip/thoughtbot 
-compass/chriseppstein 
-finagle/twitter 
-kestrel/robey 
-flockdb/twitter 
-gizzard/twitter 
-sbt/sbt 
-scala/scala 
-scalatra/scalatra 
-zipkin/twitter
-
-
-
-
-
+RestSharp/restsharp no "nothing explicit. only for users"
+ravendb/ravendb no "nothing explicit. general information. only for users" 
+MiniProfiler/SamSaffron no "nothing explicit"
+storm/nathanmarz yes "detailed text description"
+elasticsearch/elasticsearch no "nothing explicit. only for users" 
+ActionBarSherlock/JakeWharton no "nothing explicit"
+facebook-android-sdk/facebook no "nothing explicit"
+clojure/clojure yes "detailed text descriptions about modules" 
+CraftBukkit/Bukkit no "nothing explicit"
+netty/netty yes "design diagrams"
+android/github no "nothing explicit"
+node/joyent no "nothing explicit"
+jquery/jquery no "nothing explicit"
+html5-boilerplate/h5bp no "nothing explicit. only for users"
+impress.js/bartaz no "nothing explicit."
+d3/mbostock no "nothing explicit."
+chosen/harvesthq no "nothing explicit" 
+Font-Awesome/FortAwesome no "nothing explicit"
+three.js/mrdoob no "nothing explicit"
+foundation/zurb no "nothing explict"
+symfony/symfony yes "detailed design description"
+CodeIgniter/EllisLab no "nothing explicit. only for users"
+php-sdk/facebook no "nothing explicit"
+zf2/zendframework no "nothing explicit"
+cakephp/cakephp yes "a book containing details about the design"
+ThinkUp/ginatrapani no "nothing explicit. only format guidelines"
+phpunit/sebastianbergmann no "nothing explicit"
+Slim/codeguy no "nothing explicit"
+django/django yes "detailed design description"
+tornado/facebook yes "code examples about module usage"
+httpie/jkbr no "nothing explicit"
+flask/mitsuhiko yes "text description"
+requests/kennethreitz no "nothing explicit"
+symfony/xphere-forks yes "detailed design description"
+reddit/reddit yes "text descriptions"
+boto/boto no "nothing explicit"
+django-debug-toolbar/django-debug-toolbar no "nothing explicit"
+Sick-Beard/midgetspy no "nothing explicit. only for users."
+django-cms/divio no "nothing expplicit."
+rails/rails yes "detailed design descriptions"
+homebrew/mxcl no "only format rules"
+jekyll/mojombo yes "text description about how the modules works together"
+gitlabhq/gitlabhq no "nothing explicit"
+diaspora/diaspora yes "detailed description"
+devise/plataformatec yes "text descriptions about the modules"
+blueprint-css/joshuaclayton no "nothing explicit"
+octopress/imathis no "nothing explicit"
+vinc.cc/vinc no "nothing explicit"
+paperclip/thoughtbot no "nothing explicit. only for users"
+compass/chriseppstein no "nothing explicit. only for users"
+finagle/twitter yes "detailed text architecture and design description. diagrams"
+kestrel/robey no "nothing explicit"
+flockdb/twitter yes "few diagrams in doc folder"
+gizzard/twitter yes "diagrams"
+sbt/sbt no "nothing explicit"
+scala/scala yes "design language description"
+scalatra/scalatra no "nothing explicit. only for users"
+zipkin/twitter no "nothing explicit"
