@@ -18,6 +18,7 @@ import model.ProjectActivity;
 import model.PullRequest;
 import model.PullRequestComment;
 import parser.CommentsCollectionParser;
+import parser.CommitsCollectionParser;
 import parser.LineExtractedInformation;
 import parser.MongoDBParser;
 
@@ -32,12 +33,19 @@ public class Main {
 		Mongo mongo = new Mongo("localhost");
 		DB db = mongo.getDB("msr14");
 		ProjectsAnalyzer analyzer = new ProjectsAnalyzer();
-		loadData(db,analyzer);
-		saveDiscussions(analyzer);
+		loadCommits(db,analyzer);
+//		loadComments(db,analyzer);
+//		saveComments(analyzer);
 	}
 	
 	
-	private static void loadData(DB db, ProjectsAnalyzer analyzer) {
+	private static void loadCommits(DB db, ProjectsAnalyzer analyzer) {
+		CommitsCollectionParser parser = new CommitsCollectionParser(db);
+		List<LineExtractedInformation> listInformation = parser.parse();
+	}
+
+
+	private static void loadComments(DB db, ProjectsAnalyzer analyzer) {
 		CommentsCollectionParser parser = new CommentsCollectionParser(db, MongoDBParser.PULL_REQUEST_COMMENTS_COLLECTION);
 		List<LineExtractedInformation> listInformation = parser.parse();
 
@@ -66,7 +74,7 @@ public class Main {
 		}
 	}
 
-	private static void saveDiscussions(ProjectsAnalyzer analyzer) throws IOException {
+	private static void saveComments(ProjectsAnalyzer analyzer) throws IOException {
 
 		for (String projectID : analyzer.getProjects().keySet()) {
 
@@ -78,23 +86,27 @@ public class Main {
 			activities.addAll(project.getPullRequests());
 
 			BufferedWriter bf;
-			bf = new BufferedWriter(new FileWriter(new File("/home/jarthur/workspace-msr/msr-challenge/data/discussions/uncategorized/" + project.getParentID().toLowerCase().replaceAll("/", "-") + "-comments.data")));
+			bf = new BufferedWriter(new FileWriter(new File("/media/old/jarthur/workspace-msr/msr-challenge/data/discussions/uncategorized/" + project.getParentID().toLowerCase().replaceAll("/", "-") + "-comments.data")));
 
 			for (ProjectActivity projectActivity : activities) {
 
 				Collection<? extends Comment> comments = projectActivity.getComments();
-
-				for (Comment comment : comments) {
-
-					if (comment.getBody()!=null && !comment.getBody().isEmpty()) {
-						String clean = cleanComment(comment.getBody());
-						if (clean.split(" ").length > 2) {
-							bf.append(comment.getDeveloper() + " " +  project.getParentID() + " " + projectActivity.getID() + " " + clean);
-							bf.newLine();
-						}
-
-					}
 				
+				if (comments.size() >= 2) {
+
+					for (Comment comment : comments) {
+	
+						if (comment.getBody()!=null && !comment.getBody().isEmpty()) {
+							String clean = cleanComment(comment.getBody());
+							if (clean.split(" ").length > 2) {
+								bf.append(comment.getDeveloper() + " " +  project.getParentID() + " " + projectActivity.getID() + " " + clean);
+								bf.newLine();
+							}
+	
+						}
+					
+					}
+					
 				}
 
 			}
@@ -107,6 +119,8 @@ public class Main {
 	private static String cleanComment(String comment) {
 
 		String flat = comment.replaceAll("[^\\x00-\\x7F]", "");
+		flat = flat.replaceAll("\\p{Punct}", " ");
+		
 		String[] split = flat.split(" ");
 
 		StringBuilder current = new StringBuilder();
@@ -120,8 +134,10 @@ public class Main {
 
 		char[] chars = current.toString().toCharArray();
 		for (int i = 0; i < chars.length; i++) {
-			if (Character.isLetterOrDigit(current.charAt(i)) | current.charAt(i) == ' ')
+			if (Character.isLetterOrDigit(current.charAt(i)) || current.charAt(i) == ' ') {
 				sb.append(current.charAt(i));
+			}
+			
 		}
 
 		return sb.toString().trim();
