@@ -32,7 +32,7 @@ for line in open("../data-to-plot/raw-developer-project-design_activity.data"):
 
 	dev_project[idp] += 1
 
-print "Project Developer Comments Amplitude"
+print "Project Developer Comments Coverage"
 
 for k,v in dev_project.items():
 

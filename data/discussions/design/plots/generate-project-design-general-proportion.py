@@ -28,6 +28,7 @@ for k in freq.values():
 		else:
 			map_proj_design_general[project] = (map_proj_design_general[project][0],map_proj_design_general[project][1]+1)
 
+
 print "Project Design General Proportion"
 for k,v in map_proj_design_general.items():
 	print k, v[0], v[1], float(v[0]) / (v[0] + v[1])

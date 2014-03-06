@@ -5,7 +5,7 @@ data = read.table("../data-to-plot/to-plot-project-designers-commiters-proportio
 
 gg = ggplot(data, aes(x = factor(0), y = Proportion))
 
-p = gg + geom_boxplot() + theme( axis.title.x=element_blank(),axis.text.x=element_blank(),axis.ticks.x=element_blank() ) + coord_cartesian(ylim=c(0, 1)) + ylab("Designers proportion") + geom_jitter() + scale_y_continuous(breaks=seq(0,1,1/10))
+p = gg + geom_boxplot() + theme( axis.title.x=element_blank(),axis.text.x=element_blank(),axis.ticks.x=element_blank() ) + coord_cartesian(ylim=c(0, 1)) + ylab("Designers proportion") + geom_jitter(shape = 1) + scale_y_continuous(breaks=seq(0,1,1/10))
 ggsave(p, file="../graphs/boxplot-designers-proportion-rq2.pdf", width=4, height=4)
 
 
